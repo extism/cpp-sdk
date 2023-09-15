@@ -1,2 +1,6 @@
 example
 test/test
+libextism-*.so*
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
