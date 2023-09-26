@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
 set (CMAKE_CXX_STANDARD 14)
 include_directories(/usr/local/include)
+include_directories(/opt/homebrew/include)
 link_directories(/usr/local/lib)
+link_directories(/opt/homebrew/lib)
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
@@ -33,11 +35,12 @@ add_executable(
   extism-test
   test/test.cpp
 )
+target_link_directories(extism-test PUBLIC ${CURRENT_BINARY_DIR})
 target_link_libraries(
   extism-test
   gtest
   extism-cpp
 )
 include(GoogleTest)
-add_test(NAME Test COMMAND extism-test WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+add_test(NAME Test COMMAND extism-test)
 
