@@ -8,8 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "jsoncpp/include/json/json.h"
-#include "jsoncpp/include/json/writer.h"
+#include <jsoncpp/json/json.h>
 
 extern "C" {
 #include <extism.h>
