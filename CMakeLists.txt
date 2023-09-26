@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-
+set (CMAKE_CXX_STANDARD 14)
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
 add_library(extism-cpp SHARED extism.cpp)
 set_target_properties(extism-cpp PROPERTIES VERSION ${PROJECT_VERSION})
