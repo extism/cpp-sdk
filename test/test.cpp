@@ -17,8 +17,8 @@ namespace {
 using namespace extism;
 
 TEST(Plugin, Manifest) {
-  Manifest manifest = Manifest::path(code);
-  manifest.set_config("a", "1");
+  Manifest manifest = Manifest::wasmPath(code);
+  manifest.setConfig("a", "1");
 
   Plugin plugin(manifest);
 
@@ -61,13 +61,9 @@ TEST(Plugin, HostFunction) {
   auto wasm = read("wasm/code-functions.wasm");
   auto t = std::vector<ValType>{ValType::I64};
   Function hello_world =
-      Function("hello_world", t, t,
-               [](CurrentPlugin plugin, const std::vector<Val> &params,
-                  std::vector<Val> &results, void *user_data) {
-                 auto offs = plugin.alloc(4);
-                 memcpy(plugin.memory() + offs, "test", 4);
-                 results[0].v.i64 = (int64_t)offs;
-               });
+      Function("hello_world", t, t, [](CurrentPlugin plugin, void *user_data) {
+        plugin.outputString("test");
+      });
   auto functions = std::vector<Function>{
       hello_world,
   };
@@ -87,13 +83,9 @@ TEST(Plugin, MultipleThreads) {
   auto wasm = read("wasm/code-functions.wasm");
   auto t = std::vector<ValType>{ValType::I64};
   Function hello_world =
-      Function("hello_world", t, t,
-               [](CurrentPlugin plugin, const std::vector<Val> &params,
-                  std::vector<Val> &results, void *user_data) {
-                 auto offs = plugin.alloc(10);
-                 memcpy(plugin.memory() + offs, "testing123", 10);
-                 results[0].v.i64 = (int64_t)offs;
-               });
+      Function("hello_world", t, t, [](CurrentPlugin plugin, void *user_data) {
+        plugin.outputString("testing123");
+      });
   auto functions = std::vector<Function>{
       hello_world,
   };

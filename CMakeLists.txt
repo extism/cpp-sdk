@@ -14,11 +14,21 @@ install(TARGETS extism-cpp
 enable_testing()
 
 add_executable(
+  example
+  example.cpp
+)
+add_executable(
   extism-test
   test/test.cpp
 )
 target_link_libraries(
   extism-test
+  gtest
+  extism
+  extism-cpp
+)
+target_link_libraries(
+  example
   gtest
   extism
   extism-cpp
