@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 set (CMAKE_CXX_STANDARD 14)
 include_directories(SYSTEM /usr/local/include)
+link_directories(SYSTEM /usr/local/lib)
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
