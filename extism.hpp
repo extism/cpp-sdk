@@ -318,7 +318,7 @@ class Plugin {
 public:
   ExtismPlugin *plugin;
   // Create a new plugin
-  Plugin(const uint8_t *wasm, ExtismSize length, bool with_wasi = false,
+  Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi = false,
          std::vector<Function> functions = std::vector<Function>())
       : functions(functions) {
     std::vector<const ExtismFunction *> ptrs;
@@ -328,7 +328,7 @@ public:
 
     char *errmsg = nullptr;
     this->plugin = extism_plugin_new(wasm, length, ptrs.data(), ptrs.size(),
-                                     with_wasi, &errmsg);
+                                     withWasi, &errmsg);
     if (this->plugin == nullptr) {
       std::string s(errmsg);
       extism_plugin_new_error_free(errmsg);
@@ -336,23 +336,22 @@ public:
     }
   }
 
-  Plugin(const std::string &str, bool with_wasi = false,
+  Plugin(const std::string &str, bool withWasi = false,
          std::vector<Function> functions = {})
-      : Plugin((const uint8_t *)str.c_str(), str.size(), with_wasi, functions) {
-  }
+      : Plugin((const uint8_t *)str.c_str(), str.size(), withWasi, functions) {}
 
-  Plugin(const std::vector<uint8_t> &data, bool with_wasi = false,
+  Plugin(const std::vector<uint8_t> &data, bool withWasi = false,
          std::vector<Function> functions = {})
-      : Plugin(data.data(), data.size(), with_wasi, functions) {}
+      : Plugin(data.data(), data.size(), withWasi, functions) {}
 
   CancelHandle cancelHandle() {
     return CancelHandle(extism_plugin_cancel_handle(this->plugin));
   }
 
   // Create a new plugin from Manifest
-  Plugin(const Manifest &manifest, bool with_wasi = false,
+  Plugin(const Manifest &manifest, bool withWasi = false,
          std::vector<Function> functions = {})
-      : Plugin(manifest.json().c_str(), with_wasi, functions) {}
+      : Plugin(manifest.json().c_str(), withWasi, functions) {}
 
   ~Plugin() {
     extism_plugin_free(this->plugin);
@@ -385,9 +384,9 @@ public:
 
   // Call a plugin
   Buffer call(const std::string &func, const uint8_t *input,
-              ExtismSize input_length) const {
+              ExtismSize inputLength) const {
     int32_t rc =
-        extism_plugin_call(this->plugin, func.c_str(), input, input_length);
+        extism_plugin_call(this->plugin, func.c_str(), input, inputLength);
     if (rc != 0) {
       const char *error = extism_plugin_error(this->plugin);
       if (error == nullptr) {
