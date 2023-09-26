@@ -8,13 +8,7 @@
 #include <string>
 #include <vector>
 
-#ifndef EXTISM_NO_JSON
-#if __has_include(<jsoncpp/json/json.h>)
-#include <jsoncpp/json/json.h>
-#else
-#include <json/json.h>
-#endif
-#endif // EXTISM_NO_JSON
+#include "jsoncpp/include/json/json.h"
 
 extern "C" {
 #include <extism.h>
@@ -67,7 +61,6 @@ public:
     return w;
   }
 
-#ifndef EXTISM_NO_JSON
   Json::Value json() const {
     Json::Value doc;
 
@@ -83,7 +76,6 @@ public:
 
     return doc;
   }
-#endif
 };
 
 class Manifest {
@@ -113,7 +105,6 @@ public:
     return m;
   }
 
-#ifndef EXTISM_NO_JSON
   std::string json() const {
     Json::Value doc;
     Json::Value wasm;
@@ -156,7 +147,6 @@ public:
     Json::FastWriter writer;
     return writer.write(doc);
   }
-#endif
 
   // Add Wasm from path
   void add_wasm_path(std::string s, std::string hash = std::string()) {
@@ -375,7 +365,6 @@ public:
     return CancelHandle(extism_plugin_cancel_handle(this->plugin));
   }
 
-#ifndef EXTISM_NO_JSON
   // Create a new plugin from Manifest
   Plugin(const Manifest &manifest, bool with_wasi = false,
          std::vector<Function> functions = {})
@@ -397,7 +386,6 @@ public:
     auto s = writer.write(conf);
     this->config(s);
   }
-#endif
 
   void config(const char *json, size_t length) {
     bool b = extism_plugin_config(this->plugin, (const uint8_t *)json, length);

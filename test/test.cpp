@@ -11,7 +11,7 @@ std::vector<uint8_t> read(const char *filename) {
                               std::istreambuf_iterator<char>());
 }
 
-const std::string code = "../wasm/code.wasm";
+const std::string code = "wasm/code.wasm";
 
 namespace {
 using namespace extism;
@@ -58,7 +58,7 @@ TEST(Plugin, FunctionExists) {
 }
 
 TEST(Plugin, HostFunction) {
-  auto wasm = read("../wasm/code-functions.wasm");
+  auto wasm = read("wasm/code-functions.wasm");
   auto t = std::vector<ValType>{ValType::I64};
   Function hello_world =
       Function("hello_world", t, t,
@@ -84,7 +84,7 @@ void callThread(Plugin *plugin) {
 }
 
 TEST(Plugin, MultipleThreads) {
-  auto wasm = read("../wasm/code-functions.wasm");
+  auto wasm = read("wasm/code-functions.wasm");
   auto t = std::vector<ValType>{ValType::I64};
   Function hello_world =
       Function("hello_world", t, t,
