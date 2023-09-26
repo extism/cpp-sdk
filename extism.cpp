@@ -37,8 +37,8 @@ std::string Manifest::json() const {
     doc["allowed_paths"] = h;
   }
 
-  if (!this->timeoutMs.empty()) {
-    doc["timeout_ms"] = Json::Value(this->timeoutMs.value);
+  if (!this->timeout.empty()) {
+    doc["timeout_ms"] = Json::Value(this->timeout.value);
   }
 
   Json::FastWriter writer;

@@ -83,11 +83,11 @@ public:
   std::vector<Wasm> wasm;
   ManifestKey<std::vector<std::string>> allowedHosts;
   ManifestKey<std::map<std::string, std::string>> allowedPaths;
-  ManifestKey<uint64_t> timeoutMs;
+  ManifestKey<uint64_t> timeout;
 
   // Empty manifest
   Manifest()
-      : timeoutMs(0, false), allowedHosts(std::vector<std::string>(), false),
+      : timeout(0, false), allowedHosts(std::vector<std::string>(), false),
         allowedPaths(std::map<std::string, std::string>(), false) {}
 
   // Create manifest with a single Wasm from a path
@@ -139,7 +139,7 @@ public:
   }
 
   // Set timeout in milliseconds
-  void setTimeout(uint64_t ms) { this->timeoutMs = ms; }
+  void setTimeout(uint64_t ms) { this->timeout = ms; }
 
   // Set config key/value
   void setConfig(std::string k, std::string v) { this->config[k] = v; }
