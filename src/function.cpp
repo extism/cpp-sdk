@@ -5,13 +5,13 @@ static void functionCallback(ExtismCurrentPlugin *plugin,
                              const ExtismVal *inputs, ExtismSize n_inputs,
                              ExtismVal *outputs, ExtismSize n_outputs,
                              void *user_data) {
-  UserData *data = (UserData *)user_data;
+  Function::UserData *data = (Function::UserData *)user_data;
   data->func(CurrentPlugin(plugin, inputs, n_inputs, outputs, n_outputs),
              data->userData);
 }
 
 static void freeUserData(void *user_data) {
-  UserData *data = (UserData *)user_data;
+  Function::UserData *data = (Function::UserData *)user_data;
   if (data->userData != nullptr && data->freeUserData != nullptr) {
     data->freeUserData(data->userData);
   }

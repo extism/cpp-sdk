@@ -28,7 +28,7 @@ Plugin::Plugin(const std::vector<uint8_t> &data, bool withWasi,
                std::vector<Function> functions)
     : Plugin(data.data(), data.size(), withWasi, functions) {}
 
-CancelHandle Plugin::cancelHandle() {
+Plugin::CancelHandle Plugin::cancelHandle() {
   return CancelHandle(extism_plugin_cancel_handle(this->plugin));
 }
 

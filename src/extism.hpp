@@ -168,13 +168,15 @@ public:
 
 typedef std::function<void(CurrentPlugin, void *user_data)> FunctionType;
 
-struct UserData {
-  FunctionType func;
-  void *userData = NULL;
-  std::function<void(void *)> freeUserData;
-};
-
 class Function {
+public:
+  struct UserData {
+    FunctionType func;
+    void *userData = NULL;
+    std::function<void(void *)> freeUserData;
+  };
+
+private:
   std::shared_ptr<ExtismFunction> func;
   std::string name;
   UserData userData;
@@ -191,18 +193,18 @@ public:
   ExtismFunction *get();
 };
 
-class CancelHandle {
-  const ExtismCancelHandle *handle;
-
-public:
-  CancelHandle(const ExtismCancelHandle *x) : handle(x){};
-  bool cancel() { return extism_plugin_cancel(this->handle); }
-};
-
 class Plugin {
   std::vector<Function> functions;
 
 public:
+  class CancelHandle {
+    const ExtismCancelHandle *handle;
+
+  public:
+    CancelHandle(const ExtismCancelHandle *x) : handle(x){};
+    bool cancel() { return extism_plugin_cancel(this->handle); }
+  };
+
   ExtismPlugin *plugin;
   // Create a new plugin
   Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi = false,
