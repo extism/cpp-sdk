@@ -17,15 +17,20 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
       - uses: ./.github/actions/libextism
+      - run: git submodule update --init
       - name: Install C++ SDK deps
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
-          brew install jsoncpp googletest pkg-config
+          brew install jsoncpp googletest cmake
       - name: Install C++ SDK deps
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          sudo apt-get install g++ libjsoncpp-dev libgtest-dev pkg-config
+          sudo apt-get install g++ libjsoncpp-dev libgtest-dev cmake
       - name: Run C++ tests
         run: |
-          LD_LIBRARY_PATH=/usr/local/lib make example
+          mkdir build
+          cd build
+          cmake ..
+          make
           LD_LIBRARY_PATH=/usr/local/lib make test
+          LD_LIBRARY_PATH=/usr/local/lib ./example ../wasm/code-functions.wasm
