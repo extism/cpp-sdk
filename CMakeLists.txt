@@ -7,9 +7,9 @@ link_directories(/opt/homebrew/lib)
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
-add_library(extism-cpp SHARED extism.cpp)
+add_library(extism-cpp SHARED src/manifest.cpp src/current_plugin.cpp src/plugin.cpp src/function.cpp src/extism.cpp)
 set_target_properties(extism-cpp PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(extism-cpp PROPERTIES PUBLIC_HEADER extism.hpp)
+set_target_properties(extism-cpp PROPERTIES PUBLIC_HEADER src/extism.hpp)
 target_include_directories(extism-cpp PUBLIC src)
 target_link_libraries(extism-cpp PUBLIC extism jsoncpp)
 set_target_properties(extism-cpp

@@ -1,4 +1,4 @@
-#include "../extism.hpp"
+#include "../src/extism.hpp"
 
 #include <fstream>
 #include <thread>
@@ -62,7 +62,7 @@ TEST(Plugin, HostFunction) {
   auto t = std::vector<ValType>{ValType::I64};
   Function hello_world =
       Function("hello_world", t, t, [](CurrentPlugin plugin, void *user_data) {
-        plugin.outputString("test");
+        plugin.output(std::string("test"));
       });
   auto functions = std::vector<Function>{
       hello_world,
@@ -84,7 +84,7 @@ TEST(Plugin, MultipleThreads) {
   auto t = std::vector<ValType>{ValType::I64};
   Function hello_world =
       Function("hello_world", t, t, [](CurrentPlugin plugin, void *user_data) {
-        plugin.outputString("testing123");
+        plugin.output(std::string("testing123"));
       });
   auto functions = std::vector<Function>{
       hello_world,
