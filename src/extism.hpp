@@ -186,6 +186,12 @@ public:
            const std::vector<ValType> outputs, FunctionType f,
            void *userData = NULL, std::function<void(void *)> free = nullptr);
 
+  Function(std::string ns, std::string name, const std::vector<ValType> inputs,
+           const std::vector<ValType> outputs, FunctionType f,
+           void *userData = NULL, std::function<void(void *)> free = nullptr) {
+    this->setNamespace(ns);
+  }
+
   void setNamespace(std::string s);
 
   Function(const Function &f);
