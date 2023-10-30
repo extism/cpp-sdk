@@ -7,7 +7,10 @@ link_directories(/opt/homebrew/lib)
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
-add_library(extism-cpp SHARED src/manifest.cpp src/current_plugin.cpp src/plugin.cpp src/function.cpp src/extism.cpp)
+set(extism-cpp-srcs src/manifest.cpp src/current_plugin.cpp src/plugin.cpp src/function.cpp src/extism.cpp)
+
+# SHARED
+add_library(extism-cpp SHARED ${extism-cpp-srcs})
 set_target_properties(extism-cpp PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(extism-cpp PROPERTIES PUBLIC_HEADER src/extism.hpp)
 target_include_directories(extism-cpp PUBLIC src)
@@ -15,7 +18,15 @@ target_link_libraries(extism-cpp PUBLIC extism jsoncpp)
 set_target_properties(extism-cpp
   PROPERTIES NO_SONAME 1
 )
-install(TARGETS extism-cpp
+
+# STATIC
+add_library(extism-cpp-static STATIC ${extism-cpp-srcs})
+set_target_properties(extism-cpp-static PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(extism-cpp-static PROPERTIES PUBLIC_HEADER src/extism.hpp)
+target_include_directories(extism-cpp-static PUBLIC src)
+target_link_libraries(extism-cpp-static PUBLIC extism jsoncpp)
+
+install(TARGETS extism-cpp extism-cpp-static
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
