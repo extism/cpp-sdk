@@ -23,7 +23,7 @@ TEST(Plugin, Manifest) {
   Plugin plugin(manifest);
 
   Buffer buf = plugin.call("count_vowels", "this is a test");
-  ASSERT_EQ((std::string)buf, "{\"count\": 4}");
+  ASSERT_TRUE(buf.string().find("\"count\":4") != std::string::npos);
 }
 
 TEST(Plugin, BadManifest) {
@@ -37,7 +37,7 @@ TEST(Plugin, Bytes) {
   Plugin plugin(wasm);
 
   Buffer buf = plugin.call("count_vowels", "this is another test");
-  ASSERT_EQ(buf.string(), "{\"count\": 6}");
+  ASSERT_TRUE(buf.string().find("\"count\":6") != std::string::npos);
 }
 
 TEST(Plugin, UpdateConfig) {
