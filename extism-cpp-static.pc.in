@@ -6,5 +6,6 @@ Version: @PROJECT_VERSION@
 Name: Extism cpp-sdk
 Description: C++ Host SDK for Extism
 Requires.private: extism-static
-Libs: -L${libdir} -l:libextism-cpp.a -l:libjsoncpp.a
+Libs: -L${libdir} -l:libextism-cpp.a
+Libs.private: -l:libjsoncpp.a
 Cflags: -I${includedir}
