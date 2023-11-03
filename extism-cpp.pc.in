@@ -5,6 +5,6 @@ includedir=${prefix}/include
 Version: @PROJECT_VERSION@
 Name: Extism cpp-sdk
 Description: C++ Host SDK for Extism
-Requires.private: extism
-Libs: -L${libdir} -lextism-cpp -ljsoncpp
+Requires.private: extism jsoncpp
+Libs: -L${libdir} -lextism-cpp
 Cflags: -I${includedir}
