@@ -18,17 +18,26 @@ target_link_libraries(extism-cpp PUBLIC extism jsoncpp)
 set_target_properties(extism-cpp
   PROPERTIES NO_SONAME 1
 )
+configure_file(extism-cpp.pc.in extism-cpp.pc @ONLY)
 
 # STATIC
 add_library(extism-cpp-static STATIC ${extism-cpp-srcs})
+set_target_properties(extism-cpp-static PROPERTIES OUTPUT_NAME extism-cpp)
 set_target_properties(extism-cpp-static PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(extism-cpp-static PROPERTIES PUBLIC_HEADER src/extism.hpp)
 target_include_directories(extism-cpp-static PUBLIC src)
-target_link_libraries(extism-cpp-static PUBLIC extism jsoncpp)
+target_link_libraries(extism-cpp-static PUBLIC libextism.a jsoncpp)
+configure_file(extism-cpp-static.pc.in extism-cpp-static.pc @ONLY)
 
-install(TARGETS extism-cpp extism-cpp-static
+include(GNUInstallDirs)
+install(TARGETS extism-cpp
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(TARGETS extism-cpp-static
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/extism-cpp.pc ${CMAKE_CURRENT_BINARY_DIR}/extism-cpp-static.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 # Example
 add_executable(
@@ -38,6 +47,16 @@ add_executable(
 target_link_libraries(
   example
   extism-cpp
+)
+
+# Static-ish example
+add_executable(
+  example-static
+  example.cpp
+)
+target_link_libraries(
+  example-static
+  extism-cpp-static
 )
 
 # Tests

@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+Version: @PROJECT_VERSION@
+Name: Extism cpp-sdk
+Description: C++ Host SDK for Extism
+Requires.private: extism
+Libs: -L${libdir} -lextism-cpp -ljsoncpp
+Cflags: -I${includedir}
