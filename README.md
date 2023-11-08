@@ -63,3 +63,13 @@ $ pkg-config --libs extism-cpp
 ```shell
 $ pkg-config --static --libs extism-cpp-static
 ```
+
+## In-Tree builds
+
+If you wish, instead of using installed deps, you can do an in-tree build:
+
+```shell
+git clone --recurse-submodules -j4 https://github.com/extism/cpp-sdk.git
+cd cpp-sdk
+cmake -DEXTISM_CPP_BUILD_IN_TREE=1 -B build && cmake --build build
+```
