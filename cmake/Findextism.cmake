@@ -1,3 +1,4 @@
+cmake_policy(SET CMP0053 OLD)
 find_package(PkgConfig)
 pkg_check_modules(PC_extism QUIET extism)
 find_path(extism_INCLUDE_DIR

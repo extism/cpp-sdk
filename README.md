@@ -82,11 +82,11 @@ git submodule add https://github.com/extism/extism.git
 git submodule add https://github.com/open-source-parsers/jsoncpp.git
 git submodule add https://github.com/extism/cpp-sdk.git
 cd cpp-sdk
-cmake -DEXTISM_CPP_BUILD_IN_TREE=1 -B build && cmake --build build -j
+cmake -DEXTISM_CPP_BUILD_IN_TREE=1 -B build && cmake --build build
 ```
 
 ### Fallback Dependencies
 
-If `EXTISM_CPP_BUILD_IN_TREE` is not set and `FindPackage` fails, the dependency is fetched from the internet using `FetchContent` and built from source.
+If `EXTISM_CPP_BUILD_IN_TREE` is not set and `find_package` fails, the dependency is fetched from the internet using `FetchContent` and built from source.
 
 The author believes this is the worst way to deal with the deps as it requires building them from source and doesn't use a centrally managed, flat tree of dependencies. It's provided just as a cross-platform convenience.
