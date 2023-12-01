@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.16.3)
+include_guard(GLOBAL)
 set (CMAKE_CXX_STANDARD 14)
 include_directories(/usr/local/include)
 include_directories(/opt/homebrew/include)
@@ -11,8 +12,8 @@ set(extism-cpp-srcs src/manifest.cpp src/current_plugin.cpp src/plugin.cpp src/f
 
 option(EXTISM_CPP_BUILD_IN_TREE "Set to ON to build with submodule deps" OFF)
 if(EXTISM_CPP_BUILD_IN_TREE)
-    add_subdirectory(submodules/extism/libextism)
-    add_subdirectory(submodules/jsoncpp)
+    add_subdirectory(../extism/libextism extism)
+    add_subdirectory(../jsoncpp jsoncpp)
 endif()
 
 # SHARED

@@ -1,6 +1,0 @@
-[submodule "submodules/extism"]
-	path = submodules/extism
-	url = https://github.com/extism/extism.git
-[submodule "submodules/jsoncpp"]
-	path = submodules/jsoncpp
-	url = https://github.com/open-source-parsers/jsoncpp
