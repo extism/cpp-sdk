@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 3.16.3)
+cmake_minimum_required(VERSION 3.18)
 include_guard(GLOBAL)
 set (CMAKE_CXX_STANDARD 14)
-include_directories(/usr/local/include)
-include_directories(/opt/homebrew/include)
-link_directories(/usr/local/lib)
-link_directories(/opt/homebrew/lib)
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
@@ -12,8 +8,37 @@ set(extism-cpp-srcs src/manifest.cpp src/current_plugin.cpp src/plugin.cpp src/f
 
 option(EXTISM_CPP_BUILD_IN_TREE "Set to ON to build with submodule deps" OFF)
 if(EXTISM_CPP_BUILD_IN_TREE)
+    message("EXTISM_CPP_BUILD_IN_TREE: using deps from parent directory")
     add_subdirectory(../extism/libextism extism)
     add_subdirectory(../jsoncpp jsoncpp)
+else()
+    include(FetchContent)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
+    find_package(extism MODULE)
+    if(extism_FOUND)
+        message("Found extism")
+    else()
+        message("Did not find extism, using FetchContent")
+        FetchContent_Declare(
+          extism
+          GIT_REPOSITORY https://github.com/extism/extism.git
+          GIT_TAG main
+          SOURCE_SUBDIR libextism
+        )
+        FetchContent_MakeAvailable(extism)
+    endif()
+    find_package(jsoncpp)
+    if(jsoncpp_FOUND)
+        message("Found jsoncpp")
+    else()
+        message("Did not find jsoncpp, using FetchContent")
+        FetchContent_Declare(
+          jsoncpp
+          GIT_REPOSITORY https://github.com/open-source-parsers/jsoncpp.git
+          GIT_TAG master
+        )
+        FetchContent_MakeAvailable(jsoncpp)
+    endif()
 endif()
 
 # SHARED
@@ -21,11 +46,7 @@ add_library(extism-cpp SHARED ${extism-cpp-srcs})
 set_target_properties(extism-cpp PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(extism-cpp PROPERTIES PUBLIC_HEADER src/extism.hpp)
 target_include_directories(extism-cpp PUBLIC src)
-if(EXTISM_CPP_BUILD_IN_TREE)
-    target_link_libraries(extism-cpp PUBLIC extism-shared jsoncpp)
-else()
-    target_link_libraries(extism-cpp PUBLIC extism jsoncpp)
-endif()
+target_link_libraries(extism-cpp PUBLIC extism-shared jsoncpp_lib)
 set_target_properties(extism-cpp
   PROPERTIES NO_SONAME 1
 )
@@ -37,11 +58,7 @@ set_target_properties(extism-cpp-static PROPERTIES OUTPUT_NAME extism-cpp)
 set_target_properties(extism-cpp-static PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(extism-cpp-static PROPERTIES PUBLIC_HEADER src/extism.hpp)
 target_include_directories(extism-cpp-static PUBLIC src)
-if(EXTISM_CPP_BUILD_IN_TREE)
-    target_link_libraries(extism-cpp-static PUBLIC extism-static jsoncpp_static)
-else()
-    target_link_libraries(extism-cpp-static PUBLIC libextism.a jsoncpp)
-endif()
+target_link_libraries(extism-cpp-static PUBLIC extism-static jsoncpp_static)
 configure_file(extism-cpp-static.pc.in extism-cpp-static.pc @ONLY)
 
 include(GNUInstallDirs)
