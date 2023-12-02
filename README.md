@@ -37,16 +37,30 @@ After building, run the following from the build directory:
 sudo make install
 ```
 
-### Usage
+### Linking
 
-After installing, `pkg-config` may be used to get needed linking flags.
+#### CMake
 
-#### Dynamic
+```cmake
+find_package(extism-cpp)
+target_link_libraries(target_name extism-cpp)
+```
+
+or statically:
+
+```cmake
+find_package(extism-cpp)
+target_link_libraries(target_name extism-cpp-static)
+```
+
+#### `pkg-config`
+
 ```bash
 pkg-config --libs extism-cpp
 ```
 
-#### Static
+or statically:
+
 ```bash
 pkg-config --static --libs extism-cpp-static
 ```
