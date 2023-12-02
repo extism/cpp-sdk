@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 include_guard(GLOBAL)
 set (CMAKE_CXX_STANDARD 14)
+if(APPLE)
+  include_directories(/usr/local/include)
+  include_directories(/opt/homebrew/include)
+endif()
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
