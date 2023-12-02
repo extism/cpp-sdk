@@ -95,12 +95,12 @@ if(EXTISM_CPP_WITH_CMAKE_PACKAGE)
         FILE        extism-cpp-targets.cmake)
     configure_package_config_file(extism-cppConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/extism-cppConfig.cmake
         INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/extism-cpp)
-    #write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/extism-cppConfigVersion.cmake"
-    #    VERSION ${PROJECT_VERSION}
-    #    COMPATIBILITY SameMajorVersion)
+    write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/extism-cppConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion)
     install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/extism-cppConfig.cmake
-        #${CMAKE_CURRENT_BINARY_DIR}/extism-cppConfigVersion.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/extism-cppConfigVersion.cmake
         ${CMAKE_CURRENT_SOURCE_DIR}/extism-cpp-namespaced-targets.cmake
         ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findextism.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/extism-cpp)
