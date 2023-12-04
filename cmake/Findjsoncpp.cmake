@@ -2,7 +2,7 @@ cmake_policy(SET CMP0053 OLD)
 find_package(PkgConfig)
 pkg_check_modules(PC_jsoncpp QUIET jsoncpp)
 find_path(jsoncpp_INCLUDE_DIR
-  NAMES json.h
+  NAMES json/json.h json.h
   PATHS ${PC_jsoncpp_INCLUDE_DIRS}
 )
 find_library(jsoncpp_LIBRARY
@@ -19,7 +19,6 @@ find_package_handle_standard_args(jsoncpp
   FOUND_VAR jsoncpp_FOUND
   REQUIRED_VARS
     jsoncpp_LIBRARY
-    jsoncpp_STATIC_LIBRARY
     jsoncpp_INCLUDE_DIR
   VERSION_VAR jsoncpp_VERSION
 )
@@ -37,7 +36,8 @@ if(jsoncpp_FOUND AND NOT TARGET jsoncpp_lib)
     INTERFACE_INCLUDE_DIRECTORIES "${jsoncpp_INCLUDE_DIR}"
   )
 endif()
-if(jsoncpp_FOUND AND NOT TARGET jsoncpp_static)
+
+if(jsoncpp_FOUND AND NOT jsoncpp_STATIC_LIBRARY-NOTFOUND AND NOT TARGET jsoncpp_static)
   add_library(jsoncpp_static UNKNOWN IMPORTED)
   set_target_properties(jsoncpp_static PROPERTIES
     IMPORTED_LOCATION "${jsoncpp_STATIC_LIBRARY}"
