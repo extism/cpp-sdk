@@ -2,7 +2,7 @@ cmake_policy(SET CMP0053 OLD)
 find_package(PkgConfig)
 pkg_check_modules(PC_jsoncpp QUIET jsoncpp)
 find_path(jsoncpp_INCLUDE_DIR
-  NAMES json/json.h json.h
+  NAMES json/json.h
   PATHS ${PC_jsoncpp_INCLUDE_DIRS}
 )
 message(WARNING "jsoncpp_INCLUDE_DIR ${jsoncpp_INCLUDE_DIR}")
