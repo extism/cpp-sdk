@@ -104,6 +104,7 @@ if(EXTISM_CPP_WITH_CMAKE_PACKAGE)
         ${CMAKE_CURRENT_BINARY_DIR}/extism-cppConfigVersion.cmake
         ${CMAKE_CURRENT_SOURCE_DIR}/extism-cpp-namespaced-targets.cmake
         ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findextism.cmake
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findjsoncpp.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/extism-cpp)
 endif()
 
