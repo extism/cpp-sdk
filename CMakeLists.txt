@@ -135,7 +135,6 @@ if(GTest_Found)
     extism-test
     test/test.cpp
   )
-  #target_link_directories(extism-test PUBLIC ${CURRENT_BINARY_DIR})
   target_link_libraries(
     extism-test
     GTest::gtest
@@ -144,4 +143,3 @@ if(GTest_Found)
   include(GoogleTest)
   add_test(NAME Test COMMAND extism-test)
 endif()
-
