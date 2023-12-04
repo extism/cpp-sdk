@@ -38,13 +38,15 @@ if(jsoncpp_FOUND AND NOT TARGET jsoncpp_lib)
   )
 endif()
 
-if(jsoncpp_FOUND AND NOT jsoncpp_STATIC_LIBRARY-NOTFOUND AND NOT TARGET jsoncpp_static)
+if(NOT ${jsoncpp_STATIC_LIBRARY} STREQUAL "jsoncpp_STATIC_LIBRARY-NOTFOUND")
+if(jsoncpp_FOUND AND NOT TARGET jsoncpp_static)
   add_library(jsoncpp_static UNKNOWN IMPORTED)
   set_target_properties(jsoncpp_static PROPERTIES
     IMPORTED_LOCATION "${jsoncpp_STATIC_LIBRARY}"
     INTERFACE_COMPILE_OPTIONS "${PC_jsoncpp_CFLAGS_OTHER}"
     INTERFACE_INCLUDE_DIRECTORIES "${jsoncpp_INCLUDE_DIR}"
   )
+endif()
 endif()
 mark_as_advanced(
   jsoncpp_INCLUDE_DIR

@@ -51,7 +51,7 @@ set_target_properties(extism-cpp PROPERTIES PUBLIC_HEADER src/extism.hpp)
 target_include_directories(extism-cpp PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
-target_link_libraries(extism-cpp INTERFACE extism-shared jsoncpp_lib)
+target_link_libraries(extism-cpp PUBLIC extism-shared jsoncpp_lib)
 set_target_properties(extism-cpp
   PROPERTIES NO_SONAME 1
 )
