@@ -5,6 +5,7 @@ find_path(jsoncpp_INCLUDE_DIR
   NAMES json/json.h json.h
   PATHS ${PC_jsoncpp_INCLUDE_DIRS}
 )
+message(WARNING "jsoncpp_INCLUDE_DIR ${jsoncpp_INCLUDE_DIR}")
 find_library(jsoncpp_LIBRARY
   NAMES jsoncpp
   PATHS ${PC_jsoncpp_LIBRARY_DIRS}
