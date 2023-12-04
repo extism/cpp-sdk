@@ -134,7 +134,7 @@ add_executable(
   extism-test
   test/test.cpp
 )
-target_link_directories(extism-test PUBLIC ${CURRENT_BINARY_DIR})
+#target_link_directories(extism-test PUBLIC ${CURRENT_BINARY_DIR})
 target_link_libraries(
   extism-test
   GTest::gtest

@@ -5,7 +5,6 @@ find_path(jsoncpp_INCLUDE_DIR
   NAMES json/json.h
   PATHS ${PC_jsoncpp_INCLUDE_DIRS}
 )
-message(WARNING "jsoncpp_INCLUDE_DIR ${jsoncpp_INCLUDE_DIR}")
 find_library(jsoncpp_LIBRARY
   NAMES jsoncpp
   PATHS ${PC_jsoncpp_LIBRARY_DIRS}
@@ -37,17 +36,17 @@ if(jsoncpp_FOUND AND NOT TARGET jsoncpp_lib)
     INTERFACE_INCLUDE_DIRECTORIES "${jsoncpp_INCLUDE_DIR}"
   )
 endif()
-
 if(NOT ${jsoncpp_STATIC_LIBRARY} STREQUAL "jsoncpp_STATIC_LIBRARY-NOTFOUND")
-if(jsoncpp_FOUND AND NOT TARGET jsoncpp_static)
-  add_library(jsoncpp_static UNKNOWN IMPORTED)
-  set_target_properties(jsoncpp_static PROPERTIES
-    IMPORTED_LOCATION "${jsoncpp_STATIC_LIBRARY}"
-    INTERFACE_COMPILE_OPTIONS "${PC_jsoncpp_CFLAGS_OTHER}"
-    INTERFACE_INCLUDE_DIRECTORIES "${jsoncpp_INCLUDE_DIR}"
-  )
+  if(jsoncpp_FOUND AND NOT TARGET jsoncpp_static)
+    add_library(jsoncpp_static UNKNOWN IMPORTED)
+    set_target_properties(jsoncpp_static PROPERTIES
+      IMPORTED_LOCATION "${jsoncpp_STATIC_LIBRARY}"
+      INTERFACE_COMPILE_OPTIONS "${PC_jsoncpp_CFLAGS_OTHER}"
+      INTERFACE_INCLUDE_DIRECTORIES "${jsoncpp_INCLUDE_DIR}"
+    )
+  endif()
 endif()
-endif()
+
 mark_as_advanced(
   jsoncpp_INCLUDE_DIR
   jsoncpp_LIBRARY
