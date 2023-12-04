@@ -129,7 +129,7 @@ target_link_libraries(
 
 # Tests
 find_package(GTest)
-if(GTest_Found)
+if(GTest_FOUND)
   enable_testing()
   add_executable(
     extism-test
