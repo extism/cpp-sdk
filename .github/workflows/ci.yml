@@ -31,10 +31,10 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          stat /usr/local/include/json/json.h; true
-          stat /usr/local/include/jsoncpp/json/json.h; true
-          stat /opt/homebrew/include/json/json.h; true
-          stat /opt/homebrew/include/jsoncpp/json/json.h; true
+          stat /usr/local/include/json/json.h || true
+          stat /usr/local/include/jsoncpp/json/json.h || true
+          stat /opt/homebrew/include/json/json.h || true
+          stat /opt/homebrew/include/jsoncpp/json/json.h || true
           make
           LD_LIBRARY_PATH=/usr/local/lib make test
           LD_LIBRARY_PATH=/usr/local/lib ./example ../wasm/code-functions.wasm
