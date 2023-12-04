@@ -43,7 +43,6 @@ else()
         FetchContent_MakeAvailable(jsoncpp)
     endif()
 endif()
-find_package(GTest)
 
 # SHARED
 add_library(extism-cpp SHARED ${extism-cpp-srcs})
@@ -129,17 +128,20 @@ target_link_libraries(
 )
 
 # Tests
-enable_testing()
-add_executable(
-  extism-test
-  test/test.cpp
-)
-#target_link_directories(extism-test PUBLIC ${CURRENT_BINARY_DIR})
-target_link_libraries(
-  extism-test
-  GTest::gtest
-  extism-cpp
-)
-include(GoogleTest)
-add_test(NAME Test COMMAND extism-test)
+find_package(GTest)
+if(GTest_Found)
+  enable_testing()
+  add_executable(
+    extism-test
+    test/test.cpp
+  )
+  #target_link_directories(extism-test PUBLIC ${CURRENT_BINARY_DIR})
+  target_link_libraries(
+    extism-test
+    GTest::gtest
+    extism-cpp
+  )
+  include(GoogleTest)
+  add_test(NAME Test COMMAND extism-test)
+endif()
 
