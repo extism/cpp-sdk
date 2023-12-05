@@ -26,6 +26,13 @@ TEST(Plugin, Manifest) {
   ASSERT_TRUE(buf.string().find("\"count\":4") != std::string::npos);
 }
 
+TEST(Plugin, ManifestWasmUrl) {
+  const auto manifest =
+      extism::Manifest::wasmURL("https://github.com/extism/plugins/releases/"
+                                "latest/download/count_vowels.wasm");
+  ASSERT_NO_THROW(extism::Plugin plugin(manifest, true));
+}
+
 TEST(Plugin, BadManifest) {
   Manifest manifest;
   ASSERT_THROW(Plugin plugin(manifest), Error);
