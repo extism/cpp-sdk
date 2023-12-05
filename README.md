@@ -1,8 +1,8 @@
 # Extism cpp-sdk
 
-C++ Host SDK for Extism
+The C++ SDK for integrating with the [Extism](https://extism.org/) runtime. Add this library in your host C++ applications to run Extism plugins.
 
-## Getting Started
+## Building and Installation
 
 ### Install Dependencies
 
@@ -14,30 +14,43 @@ C++ Host SDK for Extism
 If you wish to do link jsoncpp statically, or do an in-tree build, See
 [Alternative Dependency Strategies](#Alternative-Dependency-Strategies).
 
-### Building
+### Build and Install cpp-sdk
 
 ```bash
 cmake -B build
 cmake --build build -j
+sudo cmake --install build
 ```
 
-### Testing
+## Getting Started
 
-After building, run the following from the build directory:
+To add the cpp-sdk to a CMake project:
 
-```bash
-make test
+```cmake
+find_package(extism-cpp)
+target_link_libraries(target_name extism-cpp)
 ```
 
-### Installation
+### Loading a Plug-in
 
-After building, run the following from the build directory:
+The primary concept in Extism is the [plug-in](https://extism.org/docs/concepts/plug-in). A plug-in is code module stored in a `.wasm` file.
 
-```bash
-sudo make install
+Plug-in code can come from a file on disk, object storage or any number of places. Since you may not have one handy let's load a demo plug-in from the web. Let's
+start by creating a main function that loads a plug-in:
+
+
+```cpp
+#include <extism.hpp>
+
+int main(void) {
+  const auto manifest =
+      extism::Manifest::wasmURL("https://github.com/extism/plugins/releases/"
+                                "latest/download/count_vowels.wasm");
+  extism::Plugin plugin(manifest, true);
+}
 ```
 
-### Linking
+## Linking
 
 #### CMake
 
@@ -104,3 +117,9 @@ cmake -DEXTISM_CPP_BUILD_IN_TREE=1 -B build && cmake --build build
 If `EXTISM_CPP_BUILD_IN_TREE` is not set and `find_package` fails, the dependency is fetched from the internet using `FetchContent` and built from source.
 
 The author believes this is the worst way to deal with the deps as it requires building them from source and doesn't use a centrally managed, flat tree of dependencies. It's provided just as a cross-platform convenience.
+
+## Testing
+
+```bash
+cmake --build build --target test
+```
