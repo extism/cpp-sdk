@@ -54,12 +54,13 @@ Json::Value Wasm::json() {
   } else if (this->source == WasmSourceURL) {
     doc["url"] = this->ref;
     doc["method"] = this->httpMethod;
-
-    Json::Value h;
-    for (auto k : this->httpHeaders) {
-      h[k.first] = this->httpHeaders[k.second];
+    if (!this->httpHeaders.empty()) {
+      Json::Value h;
+      for (auto k : this->httpHeaders) {
+        h[k.first] = this->httpHeaders[k.second];
+      }
+      doc["headers"] = h;
     }
-    doc["headers"] = h;
   } else if (this->source == WasmSourceBytes) {
     throw Error("TODO: WasmSourceBytes");
   }
