@@ -111,7 +111,7 @@ The state variables will persist until the plug-in is freed or reinitialized.
 Plug-ins may optionally take a configuration object. This is a static way to configure the plug-in. Our count-vowels plugin takes an optional configuration to change out which characters are considered vowels. Example:
 
 ```cpp
-// #include ...
+#include <extism.hpp>
 
 int main(void) {
   auto manifest =
