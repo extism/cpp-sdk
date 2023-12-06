@@ -2,7 +2,7 @@
 
 The C++ SDK for integrating with the [Extism](https://extism.org/) runtime. Add this library in your host C++ applications to run Extism plugins.
 
-Join the [Extism Discord](https://discord.gg/UsNqcTTa9P) and chat with us!
+Join the [Extism Discord](https://extism.org/discord) and chat with us!
 
 ## Building and Installation
 
