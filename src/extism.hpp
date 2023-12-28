@@ -110,8 +110,8 @@ public:
 class Buffer {
 public:
   Buffer(const uint8_t *ptr, ExtismSize len) : data(ptr), length(len) {}
-  const uint8_t *data;
-  ExtismSize length;
+  const uint8_t *const data;
+  const ExtismSize length;
 
   std::string string() const { return static_cast<std::string>(*this); }
 
