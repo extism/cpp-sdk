@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 include_guard(GLOBAL)
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 17)
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")

@@ -23,7 +23,7 @@ std::string Manifest::json() const {
   if (!this->allowedHosts.empty()) {
     Json::Value h;
 
-    for (auto s : this->allowedHosts.value) {
+    for (auto s : this->allowedHosts) {
       h.append(s);
     }
     doc["allowed_hosts"] = h;
@@ -31,14 +31,14 @@ std::string Manifest::json() const {
 
   if (!this->allowedPaths.empty()) {
     Json::Value h;
-    for (auto k : this->allowedPaths.value) {
+    for (auto k : this->allowedPaths) {
       h[k.first] = k.second;
     }
     doc["allowed_paths"] = h;
   }
 
-  if (!this->timeout.empty()) {
-    doc["timeout_ms"] = Json::Value(this->timeout.value);
+  if (this->timeout.has_value()) {
+    doc["timeout_ms"] = Json::Value(*this->timeout);
   }
 
   Json::FastWriter writer;
@@ -66,7 +66,7 @@ Json::Value Wasm::json() const {
   }
 
   if (!this->_hash.empty()) {
-    doc["hash"] = this->_hash.value;
+    doc["hash"] = this->_hash;
   }
 
   return doc;
@@ -99,22 +99,15 @@ void Manifest::addWasmURL(std::string u, std::string hash) {
 
 // Add host to allowed hosts
 void Manifest::allowHost(std::string host) {
-  if (this->allowedHosts.empty()) {
-    this->allowedHosts.set(std::vector<std::string>{});
-  }
-  this->allowedHosts.value.push_back(host);
+  this->allowedHosts.push_back(host);
 }
 
 // Add path to allowed paths
 void Manifest::allowPath(std::string src, std::string dest) {
-  if (this->allowedPaths.empty()) {
-    this->allowedPaths.set(std::map<std::string, std::string>{});
-  }
-
   if (dest.empty()) {
     dest = src;
   }
-  this->allowedPaths.value[src] = dest;
+  this->allowedPaths[src] = dest;
 }
 
 // Set timeout in milliseconds

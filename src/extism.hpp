@@ -6,6 +6,7 @@
 #include <json/json.h>
 #include <map>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -20,22 +21,6 @@ public:
 
 typedef std::map<std::string, std::string> Config;
 
-template <typename T> class ManifestKey {
-  bool is_set;
-
-public:
-  T value;
-  ManifestKey(T x, bool is_set = false) : is_set(is_set), value(std::move(x)) {}
-  ManifestKey() : is_set(false) {}
-
-  void set(T x) {
-    value = std::move(x);
-    is_set = true;
-  }
-
-  bool empty() const { return !is_set; }
-};
-
 enum WasmSource { WasmSourcePath, WasmSourceURL, WasmSourceBytes };
 
 class Wasm {
@@ -45,7 +30,7 @@ class Wasm {
   std::map<std::string, std::string> httpHeaders;
 
   // TODO: add base64 encoded raw data
-  ManifestKey<std::string> _hash;
+  std::string _hash;
 
 public:
   Wasm(WasmSource source, std::string ref, std::string hash = std::string())
@@ -74,11 +59,11 @@ class Manifest {
 public:
   Config config;
   std::vector<Wasm> wasm;
-  ManifestKey<std::vector<std::string>> allowedHosts;
-  ManifestKey<std::map<std::string, std::string>> allowedPaths;
-  ManifestKey<uint64_t> timeout;
+  std::vector<std::string> allowedHosts;
+  std::map<std::string, std::string> allowedPaths;
+  std::optional<uint64_t> timeout;
 
-  Manifest() : timeout(0, false) {}
+  Manifest() {}
 
   // Create manifest with a single Wasm from a path
   static Manifest wasmPath(std::string s, std::string hash = std::string());
