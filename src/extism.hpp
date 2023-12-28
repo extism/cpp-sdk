@@ -176,15 +176,13 @@ private:
   UserData userData;
 
 public:
-  Function(std::string name, const std::vector<ValType> inputs,
-           const std::vector<ValType> outputs, FunctionType f,
+  Function(std::string name, const std::vector<ValType> &inputs,
+           const std::vector<ValType> &outputs, FunctionType f,
            void *userData = NULL, std::function<void(void *)> free = nullptr);
 
-  Function(std::string ns, std::string name, const std::vector<ValType> inputs,
-           const std::vector<ValType> outputs, FunctionType f,
-           void *userData = NULL, std::function<void(void *)> free = nullptr) {
-    this->setNamespace(ns);
-  }
+  Function(std::string ns, std::string name, const std::vector<ValType> &inputs,
+           const std::vector<ValType> &outputs, FunctionType f,
+           void *userData = NULL, std::function<void(void *)> free = nullptr);
 
   void setNamespace(std::string s) const;
 

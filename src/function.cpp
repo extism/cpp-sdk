@@ -5,22 +5,22 @@ static void functionCallback(ExtismCurrentPlugin *plugin,
                              const ExtismVal *inputs, ExtismSize n_inputs,
                              ExtismVal *outputs, ExtismSize n_outputs,
                              void *user_data) {
-  Function::UserData *data = (Function::UserData *)user_data;
+  Function::UserData *data = static_cast<Function::UserData *>(user_data);
   data->func(CurrentPlugin(plugin, inputs, n_inputs, outputs, n_outputs),
              data->userData);
 }
 
 static void freeUserData(void *user_data) {
-  Function::UserData *data = (Function::UserData *)user_data;
+  Function::UserData *data = static_cast<Function::UserData *>(user_data);
   if (data->userData != nullptr && data->freeUserData != nullptr) {
     data->freeUserData(data->userData);
   }
 }
 
-Function::Function(std::string name, const std::vector<ValType> inputs,
-                   const std::vector<ValType> outputs, FunctionType f,
+Function::Function(std::string name, const std::vector<ValType> &inputs,
+                   const std::vector<ValType> &outputs, FunctionType f,
                    void *userData, std::function<void(void *)> free)
-    : name(name) {
+    : name(std::move(name)) {
   this->userData.func = f;
   this->userData.userData = userData;
   this->userData.freeUserData = free;
@@ -28,6 +28,14 @@ Function::Function(std::string name, const std::vector<ValType> inputs,
       this->name.c_str(), inputs.data(), inputs.size(), outputs.data(),
       outputs.size(), functionCallback, &this->userData, freeUserData);
   this->func = std::shared_ptr<ExtismFunction>(ptr, extism_function_free);
+}
+
+Function::Function(std::string ns, std::string name,
+                   const std::vector<ValType> &inputs,
+                   const std::vector<ValType> &outputs, FunctionType f,
+                   void *userData, std::function<void(void *)> free)
+    : Function(name, inputs, outputs, f, userData, free) {
+  this->setNamespace(std::move(ns));
 }
 
 void Function::setNamespace(std::string s) const {
