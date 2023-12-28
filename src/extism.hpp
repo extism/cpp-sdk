@@ -217,6 +217,16 @@ public:
   void config(const std::string &json);
 
   // Call a plugin
+  Buffer call(const char *func, const uint8_t *input,
+              ExtismSize inputLength) const;
+
+  // Call a plugin function with std::vector<uint8_t> input
+  Buffer call(const char *func, const std::vector<uint8_t> &input) const;
+
+  // Call a plugin function with string input
+  Buffer call(const char *func, const std::string &input = std::string()) const;
+
+  // Call a plugin
   Buffer call(const std::string &func, const uint8_t *input,
               ExtismSize inputLength) const;
 
@@ -226,6 +236,9 @@ public:
   // Call a plugin function with string input
   Buffer call(const std::string &func,
               const std::string &input = std::string()) const;
+
+  // Returns true if the specified function exists
+  bool functionExists(const char *func) const;
 
   // Returns true if the specified function exists
   bool functionExists(const std::string &func) const;

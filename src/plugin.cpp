@@ -68,10 +68,9 @@ void Plugin::config(const std::string &json) {
 }
 
 // Call a plugin
-Buffer Plugin::call(const std::string &func, const uint8_t *input,
+Buffer Plugin::call(const char *func, const uint8_t *input,
                     ExtismSize inputLength) const {
-  int32_t rc =
-      extism_plugin_call(this->plugin.get(), func.c_str(), input, inputLength);
+  int32_t rc = extism_plugin_call(this->plugin.get(), func, input, inputLength);
   if (rc != 0) {
     const char *error = extism_plugin_error(this->plugin.get());
     if (error == nullptr) {
@@ -87,15 +86,36 @@ Buffer Plugin::call(const std::string &func, const uint8_t *input,
 }
 
 // Call a plugin function with std::vector<uint8_t> input
-Buffer Plugin::call(const std::string &func,
-                    const std::vector<uint8_t> &input) const {
+Buffer Plugin::call(const char *func, const std::vector<uint8_t> &input) const {
   return this->call(func, input.data(), input.size());
 }
 
 // Call a plugin function with string input
-Buffer Plugin::call(const std::string &func, const std::string &input) const {
+Buffer Plugin::call(const char *func, const std::string &input) const {
   return this->call(func, reinterpret_cast<const uint8_t *>(input.c_str()),
                     input.size());
+}
+
+// Call a plugin
+Buffer Plugin::call(const std::string &func, const uint8_t *input,
+                    ExtismSize inputLength) const {
+  return this->call(func.c_str(), input, inputLength);
+}
+
+// Call a plugin function with std::vector<uint8_t> input
+Buffer Plugin::call(const std::string &func,
+                    const std::vector<uint8_t> &input) const {
+  return this->call(func.c_str(), input);
+}
+
+// Call a plugin function with string input
+Buffer Plugin::call(const std::string &func, const std::string &input) const {
+  return this->call(func.c_str(), input);
+}
+
+// Returns true if the specified function exists
+bool Plugin::functionExists(const char *func) const {
+  return extism_plugin_function_exists(this->plugin.get(), func);
 }
 
 // Returns true if the specified function exists
