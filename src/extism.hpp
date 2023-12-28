@@ -1,41 +1,39 @@
 #pragma once
 
-#include <cstring>
+#include <cstdint>
+#include <extism.h>
 #include <functional>
+#include <json/json.h>
 #include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <json/json.h>
-
-extern "C" {
-#include <extism.h>
-}
-
 namespace extism {
 
 class Error : public std::runtime_error {
 public:
-  Error(std::string msg) : std::runtime_error(msg) {}
+  Error(const std::string &msg) : std::runtime_error(msg) {}
+  Error(const char *msg) : std::runtime_error(msg) {}
 };
 
 typedef std::map<std::string, std::string> Config;
 
 template <typename T> class ManifestKey {
-  bool is_set = false;
+  bool is_set;
 
 public:
   T value;
-  ManifestKey(T x, bool is_set = false) : is_set(is_set) { value = x; }
+  ManifestKey(T x, bool is_set = false) : is_set(is_set), value(std::move(x)) {}
+  ManifestKey() : is_set(false) {}
 
   void set(T x) {
-    value = x;
+    value = std::move(x);
     is_set = true;
   }
 
-  bool empty() const { return is_set == false; }
+  bool empty() const { return !is_set; }
 };
 
 enum WasmSource { WasmSourcePath, WasmSourceURL, WasmSourceBytes };
@@ -47,16 +45,15 @@ class Wasm {
   std::map<std::string, std::string> httpHeaders;
 
   // TODO: add base64 encoded raw data
-  ManifestKey<std::string> _hash =
-      ManifestKey<std::string>(std::string(), false);
+  ManifestKey<std::string> _hash;
 
 public:
   Wasm(WasmSource source, std::string ref, std::string hash = std::string())
-      : source(source), ref(ref), _hash(hash) {}
+      : source(source), ref(std::move(ref)), _hash(std::move(hash)) {}
 
   // Create Wasm pointing to a path
   static Wasm path(std::string s, std::string hash = std::string()) {
-    return Wasm(WasmSourcePath, s, hash);
+    return Wasm(WasmSourcePath, std::move(s), std::move(hash));
   }
 
   // Create Wasm pointing to a URL
@@ -64,13 +61,13 @@ public:
                   std::string method = "GET",
                   std::map<std::string, std::string> headers =
                       std::map<std::string, std::string>()) {
-    auto wasm = Wasm(WasmSourceURL, s, hash);
-    wasm.httpMethod = method;
-    wasm.httpHeaders = headers;
+    auto wasm = Wasm(WasmSourceURL, std::move(s), std::move(hash));
+    wasm.httpMethod = std::move(method);
+    wasm.httpHeaders = std::move(headers);
     return wasm;
   }
 
-  Json::Value json();
+  Json::Value json() const;
 };
 
 class Manifest {
@@ -81,10 +78,7 @@ public:
   ManifestKey<std::map<std::string, std::string>> allowedPaths;
   ManifestKey<uint64_t> timeout;
 
-  // Empty manifest
-  Manifest()
-      : timeout(0, false), allowedHosts(std::vector<std::string>(), false),
-        allowedPaths(std::map<std::string, std::string>(), false) {}
+  Manifest() : timeout(0, false) {}
 
   // Create manifest with a single Wasm from a path
   static Manifest wasmPath(std::string s, std::string hash = std::string());
@@ -119,12 +113,16 @@ public:
   const uint8_t *data;
   ExtismSize length;
 
-  std::string string() { return (std::string)(*this); }
+  std::string string() const { return static_cast<std::string>(*this); }
 
-  std::vector<uint8_t> vector() { return (std::vector<uint8_t>)(*this); }
+  std::vector<uint8_t> vector() const {
+    return static_cast<std::vector<uint8_t>>(*this);
+  }
 
-  operator std::string() { return std::string((const char *)data, length); }
-  operator std::vector<uint8_t>() {
+  operator std::string() const {
+    return std::string(reinterpret_cast<const char *>(data), length);
+  }
+  operator std::vector<uint8_t>() const {
     return std::vector<uint8_t>(data, data + length);
   }
 };
@@ -135,11 +133,11 @@ typedef ExtismVal Val;
 typedef uint64_t MemoryHandle;
 
 class CurrentPlugin {
-  ExtismCurrentPlugin *pointer;
-  const ExtismVal *inputs;
-  size_t nInputs;
-  ExtismVal *outputs;
-  size_t nOutputs;
+  ExtismCurrentPlugin *const pointer;
+  const ExtismVal *const inputs;
+  const size_t nInputs;
+  ExtismVal *const outputs;
+  const size_t nOutputs;
 
 public:
   CurrentPlugin(ExtismCurrentPlugin *p, const ExtismVal *inputs, size_t nInputs,
@@ -147,19 +145,19 @@ public:
       : pointer(p), inputs(inputs), nInputs(nInputs), outputs(outputs),
         nOutputs(nOutputs) {}
 
-  uint8_t *memory();
-  uint8_t *memory(MemoryHandle offs);
-  ExtismSize memoryLength(MemoryHandle offs);
-  MemoryHandle memoryAlloc(ExtismSize size);
-  void memoryFree(MemoryHandle handle);
-  void output(const std::string &s, size_t index = 0);
-  void output(const uint8_t *bytes, size_t len, size_t index = 0);
-  void output(const Json::Value &&v, size_t index = 0);
-  uint8_t *inputBytes(size_t *length = nullptr, size_t index = 0);
-  Buffer inputBuffer(size_t index = 0);
-  std::string inputString(size_t index = 0);
-  const Val &inputVal(size_t index);
-  Val &outputVal(size_t index);
+  uint8_t *memory() const;
+  uint8_t *memory(MemoryHandle offs) const;
+  ExtismSize memoryLength(MemoryHandle offs) const;
+  MemoryHandle memoryAlloc(ExtismSize size) const;
+  void memoryFree(MemoryHandle handle) const;
+  void output(const std::string &s, size_t index = 0) const;
+  void output(const uint8_t *bytes, size_t len, size_t index = 0) const;
+  void output(const Json::Value &&v, size_t index = 0) const;
+  uint8_t *inputBytes(size_t *length = nullptr, size_t index = 0) const;
+  Buffer inputBuffer(size_t index = 0) const;
+  std::string inputString(size_t index = 0) const;
+  const Val &inputVal(size_t index) const;
+  Val &outputVal(size_t index) const;
 };
 
 typedef std::function<void(CurrentPlugin, void *user_data)> FunctionType;
@@ -188,11 +186,11 @@ public:
     this->setNamespace(ns);
   }
 
-  void setNamespace(std::string s);
+  void setNamespace(std::string s) const;
 
   Function(const Function &f);
 
-  ExtismFunction *get();
+  ExtismFunction *get() const;
 };
 
 class Plugin {

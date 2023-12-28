@@ -45,7 +45,7 @@ std::string Manifest::json() const {
   return writer.write(doc);
 }
 
-Json::Value Wasm::json() {
+Json::Value Wasm::json() const {
 
   Json::Value doc;
 
@@ -57,7 +57,7 @@ Json::Value Wasm::json() {
     if (!this->httpHeaders.empty()) {
       Json::Value h;
       for (auto k : this->httpHeaders) {
-        h[k.first] = this->httpHeaders[k.second];
+        h[k.first] = k.second;
       }
       doc["headers"] = h;
     }

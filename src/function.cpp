@@ -30,12 +30,12 @@ Function::Function(std::string name, const std::vector<ValType> inputs,
   this->func = std::shared_ptr<ExtismFunction>(ptr, extism_function_free);
 }
 
-void Function::setNamespace(std::string s) {
+void Function::setNamespace(std::string s) const {
   extism_function_set_namespace(this->func.get(), s.c_str());
 }
 
 Function::Function(const Function &f) { this->func = f.func; }
 
-ExtismFunction *Function::get() { return this->func.get(); }
+ExtismFunction *Function::get() const { return this->func.get(); }
 
 }; // namespace extism
