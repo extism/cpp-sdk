@@ -243,6 +243,10 @@ public:
 
   // Returns true if the specified function exists
   bool functionExists(const std::string &func) const;
+
+  // Reset the Extism runtime, this will invalidate all allocated memory
+  // returns true if it succeeded
+  bool reset() const;
 };
 
 // Set global log file for plugins

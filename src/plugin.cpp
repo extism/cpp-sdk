@@ -4,7 +4,7 @@ namespace extism {
 
 Plugin::Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi,
                std::vector<Function> functions)
-    : functions(functions) {
+    : functions(std::move(functions)) {
   std::vector<const ExtismFunction *> ptrs;
   for (auto i : this->functions) {
     ptrs.push_back(i.get());
@@ -22,11 +22,12 @@ Plugin::Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi,
 
 Plugin::Plugin(const std::string &str, bool withWasi,
                std::vector<Function> functions)
-    : Plugin((const uint8_t *)str.c_str(), str.size(), withWasi, functions) {}
+    : Plugin(reinterpret_cast<const uint8_t *>(str.c_str()), str.size(),
+             withWasi, std::move(functions)) {}
 
 Plugin::Plugin(const std::vector<uint8_t> &data, bool withWasi,
                std::vector<Function> functions)
-    : Plugin(data.data(), data.size(), withWasi, functions) {}
+    : Plugin(data.data(), data.size(), withWasi, std::move(functions)) {}
 
 Plugin::CancelHandle Plugin::cancelHandle() {
   return CancelHandle(extism_plugin_cancel_handle(this->plugin));
@@ -35,7 +36,7 @@ Plugin::CancelHandle Plugin::cancelHandle() {
 // Create a new plugin from Manifest
 Plugin::Plugin(const Manifest &manifest, bool withWasi,
                std::vector<Function> functions)
-    : Plugin(manifest.json().c_str(), withWasi, functions) {}
+    : Plugin(manifest.json().c_str(), withWasi, std::move(functions)) {}
 
 Plugin::~Plugin() {
   if (this->plugin == nullptr)
@@ -57,7 +58,8 @@ void Plugin::config(const Config &data) {
 }
 
 void Plugin::config(const char *json, size_t length) {
-  bool b = extism_plugin_config(this->plugin, (const uint8_t *)json, length);
+  bool b = extism_plugin_config(
+      this->plugin, reinterpret_cast<const uint8_t *>(json), length);
   if (!b) {
     const char *err = extism_plugin_error(this->plugin);
     throw Error(err == nullptr ? "Unable to update plugin config" : err);
@@ -95,11 +97,17 @@ Buffer Plugin::call(const std::string &func,
 
 // Call a plugin function with string input
 Buffer Plugin::call(const std::string &func, const std::string &input) const {
-  return this->call(func, (const uint8_t *)input.c_str(), input.size());
+  return this->call(func, reinterpret_cast<const uint8_t *>(input.c_str()),
+                    input.size());
 }
 
 // Returns true if the specified function exists
 bool Plugin::functionExists(const std::string &func) const {
   return extism_plugin_function_exists(this->plugin, func.c_str());
 }
+
+// Reset the Extism runtime, this will invalidate all allocated memory
+// returns true if it succeeded
+bool Plugin::reset() const { return extism_plugin_reset(this->plugin); }
+
 }; // namespace extism
