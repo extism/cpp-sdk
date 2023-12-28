@@ -179,6 +179,12 @@ public:
 class Plugin {
   std::vector<Function> functions;
 
+  struct PluginDeleter {
+    void operator()(ExtismPlugin *) const;
+  };
+  using unique_plugin = std::unique_ptr<ExtismPlugin, PluginDeleter>;
+  unique_plugin plugin;
+
 public:
   class CancelHandle {
     const ExtismCancelHandle *handle;
@@ -188,7 +194,6 @@ public:
     bool cancel() { return extism_plugin_cancel(this->handle); }
   };
 
-  ExtismPlugin *plugin;
   // Create a new plugin
   Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi = false,
          std::vector<Function> functions = std::vector<Function>());
@@ -204,8 +209,6 @@ public:
   // Create a new plugin from Manifest
   Plugin(const Manifest &manifest, bool withWasi = false,
          std::vector<Function> functions = {});
-
-  ~Plugin();
 
   void config(const Config &data);
 
@@ -230,6 +233,9 @@ public:
   // Reset the Extism runtime, this will invalidate all allocated memory
   // returns true if it succeeded
   bool reset() const;
+
+  // Get a ptr to the plugin that can be passed to the c api
+  ExtismPlugin *get() const { return plugin.get(); }
 };
 
 // Set global log file for plugins

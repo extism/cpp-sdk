@@ -2,6 +2,10 @@
 
 namespace extism {
 
+void extism::Plugin::PluginDeleter::operator()(ExtismPlugin *plugin) const {
+  extism_plugin_free(plugin);
+}
+
 Plugin::Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi,
                std::vector<Function> functions)
     : functions(std::move(functions)) {
@@ -11,8 +15,8 @@ Plugin::Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi,
   }
 
   char *errmsg = nullptr;
-  this->plugin = extism_plugin_new(wasm, length, ptrs.data(), ptrs.size(),
-                                   withWasi, &errmsg);
+  this->plugin = unique_plugin(extism_plugin_new(
+      wasm, length, ptrs.data(), ptrs.size(), withWasi, &errmsg));
   if (this->plugin == nullptr) {
     std::string s(errmsg);
     extism_plugin_new_error_free(errmsg);
@@ -30,20 +34,13 @@ Plugin::Plugin(const std::vector<uint8_t> &data, bool withWasi,
     : Plugin(data.data(), data.size(), withWasi, std::move(functions)) {}
 
 Plugin::CancelHandle Plugin::cancelHandle() {
-  return CancelHandle(extism_plugin_cancel_handle(this->plugin));
+  return CancelHandle(extism_plugin_cancel_handle(this->plugin.get()));
 }
 
 // Create a new plugin from Manifest
 Plugin::Plugin(const Manifest &manifest, bool withWasi,
                std::vector<Function> functions)
     : Plugin(manifest.json().c_str(), withWasi, std::move(functions)) {}
-
-Plugin::~Plugin() {
-  if (this->plugin == nullptr)
-    return;
-  extism_plugin_free(this->plugin);
-  this->plugin = nullptr;
-}
 
 void Plugin::config(const Config &data) {
   Json::Value conf;
@@ -59,9 +56,9 @@ void Plugin::config(const Config &data) {
 
 void Plugin::config(const char *json, size_t length) {
   bool b = extism_plugin_config(
-      this->plugin, reinterpret_cast<const uint8_t *>(json), length);
+      this->plugin.get(), reinterpret_cast<const uint8_t *>(json), length);
   if (!b) {
-    const char *err = extism_plugin_error(this->plugin);
+    const char *err = extism_plugin_error(this->plugin.get());
     throw Error(err == nullptr ? "Unable to update plugin config" : err);
   }
 }
@@ -74,9 +71,9 @@ void Plugin::config(const std::string &json) {
 Buffer Plugin::call(const std::string &func, const uint8_t *input,
                     ExtismSize inputLength) const {
   int32_t rc =
-      extism_plugin_call(this->plugin, func.c_str(), input, inputLength);
+      extism_plugin_call(this->plugin.get(), func.c_str(), input, inputLength);
   if (rc != 0) {
-    const char *error = extism_plugin_error(this->plugin);
+    const char *error = extism_plugin_error(this->plugin.get());
     if (error == nullptr) {
       throw Error("extism_call failed");
     }
@@ -84,8 +81,8 @@ Buffer Plugin::call(const std::string &func, const uint8_t *input,
     throw Error(error);
   }
 
-  ExtismSize length = extism_plugin_output_length(this->plugin);
-  const uint8_t *ptr = extism_plugin_output_data(this->plugin);
+  ExtismSize length = extism_plugin_output_length(this->plugin.get());
+  const uint8_t *ptr = extism_plugin_output_data(this->plugin.get());
   return Buffer(ptr, length);
 }
 
@@ -103,11 +100,11 @@ Buffer Plugin::call(const std::string &func, const std::string &input) const {
 
 // Returns true if the specified function exists
 bool Plugin::functionExists(const std::string &func) const {
-  return extism_plugin_function_exists(this->plugin, func.c_str());
+  return extism_plugin_function_exists(this->plugin.get(), func.c_str());
 }
 
 // Reset the Extism runtime, this will invalidate all allocated memory
 // returns true if it succeeded
-bool Plugin::reset() const { return extism_plugin_reset(this->plugin); }
+bool Plugin::reset() const { return extism_plugin_reset(this->plugin.get()); }
 
 }; // namespace extism
