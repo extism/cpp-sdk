@@ -2,8 +2,8 @@
 
 namespace extism {
 static void functionCallback(ExtismCurrentPlugin *plugin,
-                             const ExtismVal *inputs, size_t n_inputs,
-                             ExtismVal *outputs, size_t n_outputs,
+                             const ExtismVal *inputs, ExtismSize n_inputs,
+                             ExtismVal *outputs, ExtismSize n_outputs,
                              void *user_data) {
   Function::UserData *data = static_cast<Function::UserData *>(user_data);
   data->func(CurrentPlugin(plugin, inputs, n_inputs, outputs, n_outputs),
