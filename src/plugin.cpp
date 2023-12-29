@@ -7,7 +7,7 @@ void extism::Plugin::PluginDeleter::operator()(ExtismPlugin *plugin) const {
   extism_plugin_free(plugin);
 }
 
-Plugin::Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi,
+Plugin::Plugin(const uint8_t *wasm, size_t length, bool withWasi,
                std::vector<Function> functions)
     : functions(std::move(functions)) {
   std::vector<const ExtismFunction *> ptrs;
@@ -74,7 +74,7 @@ void Plugin::config(const std::string &json) {
 
 // Call a plugin
 Buffer Plugin::call(const char *func, const uint8_t *input,
-                    ExtismSize inputLength) const {
+                    size_t inputLength) const {
   int32_t rc = extism_plugin_call(this->plugin.get(), func, input, inputLength);
   if (rc != 0) {
     const char *error = extism_plugin_error(this->plugin.get());
@@ -103,7 +103,7 @@ Buffer Plugin::call(const char *func, const std::string &input) const {
 
 // Call a plugin
 Buffer Plugin::call(const std::string &func, const uint8_t *input,
-                    ExtismSize inputLength) const {
+                    size_t inputLength) const {
   return this->call(func.c_str(), input, inputLength);
 }
 

@@ -103,9 +103,9 @@ public:
 
 class Buffer {
 public:
-  Buffer(const uint8_t *ptr, ExtismSize len) : data(ptr), length(len) {}
+  Buffer(const uint8_t *ptr, size_t len) : data(ptr), length(len) {}
   const uint8_t *const data;
-  const ExtismSize length;
+  const size_t length;
 
   std::string string() const { return static_cast<std::string>(*this); }
 
@@ -203,7 +203,7 @@ public:
   };
 
   // Create a new plugin
-  Plugin(const uint8_t *wasm, ExtismSize length, bool withWasi = false,
+  Plugin(const uint8_t *wasm, size_t length, bool withWasi = false,
          std::vector<Function> functions = std::vector<Function>());
 
   Plugin(const std::string &str, bool withWasi = false,
@@ -225,8 +225,7 @@ public:
   void config(const std::string &json);
 
   // Call a plugin
-  Buffer call(const char *func, const uint8_t *input,
-              ExtismSize inputLength) const;
+  Buffer call(const char *func, const uint8_t *input, size_t inputLength) const;
 
   // Call a plugin function with std::vector<uint8_t> input
   Buffer call(const char *func, const std::vector<uint8_t> &input) const;
@@ -236,7 +235,7 @@ public:
 
   // Call a plugin
   Buffer call(const std::string &func, const uint8_t *input,
-              ExtismSize inputLength) const;
+              size_t inputLength) const;
 
   // Call a plugin function with std::vector<uint8_t> input
   Buffer call(const std::string &func, const std::vector<uint8_t> &input) const;
