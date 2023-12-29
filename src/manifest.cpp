@@ -1,6 +1,56 @@
 #include "extism.hpp"
+#include <algorithm>
 
 namespace extism {
+
+static std::string base64_encode(const uint8_t *data, size_t len) {
+  const size_t out_len = ((len + 3 - 1) / 3) * 4;
+  std::string out(out_len, '\0');
+  static const char alpha[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                              "abcdefghijklmnopqrstuvwxyz"
+                              "0123456789+/";
+
+  char *out_cursor = out.data();
+  while (len > 0) {
+    const size_t to_encode = std::min<size_t>(3, len);
+    len -= to_encode;
+    uint8_t c[4];
+    c[1] = c[2] = 0;
+    memcpy(c, data, to_encode);
+    data += to_encode;
+    const uint32_t u =
+        (uint32_t)c[0] << 16 | (uint32_t)c[1] << 8 | (uint32_t)c[2];
+    *out_cursor++ = alpha[u >> 18];
+    *out_cursor++ = alpha[u >> 12 & 63];
+    *out_cursor++ = to_encode < 2 ? '=' : alpha[u >> 6 & 63];
+    *out_cursor++ = to_encode < 3 ? '=' : alpha[u & 63];
+  }
+  return out;
+}
+
+// Create Wasm pointing to a path
+Wasm Wasm::path(std::string s, std::string hash) {
+  return Wasm(WasmSourcePath, std::move(s), std::move(hash));
+}
+
+// Create Wasm pointing to a URL
+Wasm Wasm::url(std::string s, std::string hash, std::string method,
+               std::map<std::string, std::string> headers) {
+  auto wasm = Wasm(WasmSourceURL, std::move(s), std::move(hash));
+  wasm.httpMethod = std::move(method);
+  wasm.httpHeaders = std::move(headers);
+  return wasm;
+}
+
+// Create Wasm from bytes of a module
+Wasm Wasm::bytes(const uint8_t *data, const size_t len, std::string hash) {
+  std::string s = base64_encode(data, len);
+  return Wasm(WasmSourceBytes, std::move(s), std::move(hash));
+}
+
+Wasm Wasm::bytes(const std::vector<uint8_t> &data, std::string hash) {
+  return Wasm::bytes(data.data(), data.size(), hash);
+}
 
 std::string Manifest::json() const {
   Json::Value doc;
@@ -62,7 +112,7 @@ Json::Value Wasm::json() const {
       doc["headers"] = h;
     }
   } else if (this->source == WasmSourceBytes) {
-    throw Error("TODO: WasmSourceBytes");
+    doc["data"] = this->ref;
   }
 
   if (!this->_hash.empty()) {
@@ -85,6 +135,21 @@ Manifest Manifest::wasmURL(std::string s, std::string hash) {
   return m;
 }
 
+// Create manifest from Wasm data
+Manifest Manifest::wasmBytes(const uint8_t *data, const size_t len,
+                             std::string hash) {
+  Manifest m;
+  m.addWasmBytes(data, len, hash);
+  return m;
+}
+
+Manifest Manifest::wasmBytes(const std::vector<uint8_t> &data,
+                             std::string hash) {
+  Manifest m;
+  m.addWasmBytes(data, hash);
+  return m;
+}
+
 // Add Wasm from path
 void Manifest::addWasmPath(std::string s, std::string hash) {
   Wasm w = Wasm::path(s, hash);
@@ -94,6 +159,19 @@ void Manifest::addWasmPath(std::string s, std::string hash) {
 // Add Wasm from URL
 void Manifest::addWasmURL(std::string u, std::string hash) {
   Wasm w = Wasm::url(u, hash);
+  this->wasm.push_back(w);
+}
+
+// add Wasm from bytes
+void Manifest::addWasmBytes(const uint8_t *data, const size_t len,
+                            std::string hash) {
+  Wasm w = Wasm::bytes(data, len, hash);
+  this->wasm.push_back(w);
+}
+
+void Manifest::addWasmBytes(const std::vector<uint8_t> &data,
+                            std::string hash) {
+  Wasm w = Wasm::bytes(data, hash);
   this->wasm.push_back(w);
 }
 

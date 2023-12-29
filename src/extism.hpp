@@ -37,20 +37,20 @@ public:
       : source(source), ref(std::move(ref)), _hash(std::move(hash)) {}
 
   // Create Wasm pointing to a path
-  static Wasm path(std::string s, std::string hash = std::string()) {
-    return Wasm(WasmSourcePath, std::move(s), std::move(hash));
-  }
+  static Wasm path(std::string s, std::string hash = std::string());
 
   // Create Wasm pointing to a URL
   static Wasm url(std::string s, std::string hash = std::string(),
                   std::string method = "GET",
-                  std::map<std::string, std::string> headers =
-                      std::map<std::string, std::string>()) {
-    auto wasm = Wasm(WasmSourceURL, std::move(s), std::move(hash));
-    wasm.httpMethod = std::move(method);
-    wasm.httpHeaders = std::move(headers);
-    return wasm;
-  }
+                  std::map<std::string, std::string> headers = {});
+
+  // Create Wasm from bytes of a module
+  static Wasm bytes(const uint8_t *data, const size_t len,
+                    std::string hash = std::string());
+
+  // Create Wasm from bytes of a module
+  static Wasm bytes(const std::vector<uint8_t> &data,
+                    std::string hash = std::string());
 
   Json::Value json() const;
 };
@@ -71,6 +71,11 @@ public:
   // Create manifest with a single Wasm from a URL
   static Manifest wasmURL(std::string s, std::string hash = std::string());
 
+  // Create manifest from Wasm data
+  static Manifest wasmBytes(const uint8_t *data, const size_t len,
+                            std::string hash = std::string());
+  static Manifest wasmBytes(const std::vector<uint8_t> &data, std::string hash);
+
   std::string json() const;
 
   // Add Wasm from path
@@ -78,6 +83,11 @@ public:
 
   // Add Wasm from URL
   void addWasmURL(std::string u, std::string hash = std::string());
+
+  // add Wasm from bytes
+  void addWasmBytes(const uint8_t *data, const size_t len,
+                    std::string hash = std::string());
+  void addWasmBytes(const std::vector<uint8_t> &data, std::string hash);
 
   // Add host to allowed hosts
   void allowHost(std::string host);
