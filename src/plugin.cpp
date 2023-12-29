@@ -43,6 +43,10 @@ Plugin::Plugin(const Manifest &manifest, bool withWasi,
                std::vector<Function> functions)
     : Plugin(manifest.json().c_str(), withWasi, std::move(functions)) {}
 
+bool Plugin::CancelHandle::cancel() {
+  return extism_plugin_cancel(this->handle);
+}
+
 void Plugin::config(const Config &data) {
   Json::Value conf;
 

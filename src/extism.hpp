@@ -199,7 +199,7 @@ public:
 
   public:
     CancelHandle(const ExtismCancelHandle *x) : handle(x){};
-    bool cancel() { return extism_plugin_cancel(this->handle); }
+    bool cancel();
   };
 
   // Create a new plugin
