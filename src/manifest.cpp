@@ -1,5 +1,6 @@
 #include "extism.hpp"
 #include <algorithm>
+#include <json/json.h>
 
 namespace extism {
 
@@ -52,11 +53,40 @@ Wasm Wasm::bytes(const std::vector<uint8_t> &data, std::string hash) {
   return Wasm::bytes(data.data(), data.size(), hash);
 }
 
+class Serializer {
+public:
+  static Json::Value json(const Wasm &wasm) {
+    Json::Value doc;
+
+    if (wasm.source == WasmSourcePath) {
+      doc["path"] = wasm.ref;
+    } else if (wasm.source == WasmSourceURL) {
+      doc["url"] = wasm.ref;
+      doc["method"] = wasm.httpMethod;
+      if (!wasm.httpHeaders.empty()) {
+        Json::Value h;
+        for (auto k : wasm.httpHeaders) {
+          h[k.first] = k.second;
+        }
+        doc["headers"] = h;
+      }
+    } else if (wasm.source == WasmSourceBytes) {
+      doc["data"] = wasm.ref;
+    }
+
+    if (!wasm._hash.empty()) {
+      doc["hash"] = wasm._hash;
+    }
+
+    return doc;
+  }
+};
+
 std::string Manifest::json() const {
   Json::Value doc;
   Json::Value wasm;
   for (auto w : this->wasm) {
-    wasm.append(w.json());
+    wasm.append(Serializer::json(w));
   }
 
   doc["wasm"] = wasm;
@@ -95,6 +125,7 @@ std::string Manifest::json() const {
   return writer.write(doc);
 }
 
+/*
 Json::Value Wasm::json() const {
 
   Json::Value doc;
@@ -121,6 +152,7 @@ Json::Value Wasm::json() const {
 
   return doc;
 }
+*/
 
 Manifest Manifest::wasmPath(std::string s, std::string hash) {
   Manifest m;

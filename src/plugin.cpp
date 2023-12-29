@@ -1,4 +1,5 @@
 #include "extism.hpp"
+#include <json/json.h>
 
 namespace extism {
 

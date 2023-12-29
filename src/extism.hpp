@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <extism.h>
 #include <functional>
-#include <json/json.h>
 #include <map>
 #include <memory>
 #include <optional>
@@ -52,7 +51,7 @@ public:
   static Wasm bytes(const std::vector<uint8_t> &data,
                     std::string hash = std::string());
 
-  Json::Value json() const;
+  friend class Serializer;
 };
 
 class Manifest {
@@ -147,7 +146,6 @@ public:
   void memoryFree(MemoryHandle handle) const;
   void output(const std::string &s, size_t index = 0) const;
   void output(const uint8_t *bytes, size_t len, size_t index = 0) const;
-  void output(const Json::Value &&v, size_t index = 0) const;
   uint8_t *inputBytes(size_t *length = nullptr, size_t index = 0) const;
   Buffer inputBuffer(size_t index = 0) const;
   std::string inputString(size_t index = 0) const;

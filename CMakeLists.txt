@@ -51,7 +51,8 @@ set_target_properties(extism-cpp PROPERTIES PUBLIC_HEADER src/extism.hpp)
 target_include_directories(extism-cpp PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
-target_link_libraries(extism-cpp PUBLIC extism-shared jsoncpp_lib)
+target_link_libraries(extism-cpp PUBLIC extism-shared)
+target_link_libraries(extism-cpp PRIVATE jsoncpp_lib)
 set_target_properties(extism-cpp
   PROPERTIES NO_SONAME 1
 )
@@ -68,10 +69,10 @@ target_include_directories(extism-cpp-static PUBLIC
 )
 target_link_libraries(extism-cpp-static PUBLIC extism-static)
 if(TARGET jsoncpp_static)
-  target_link_libraries(extism-cpp-static PUBLIC jsoncpp_static)
+  target_link_libraries(extism-cpp-static PRIVATE jsoncpp_static)
 else()
   message(WARNING "jsoncpp_static not found, linking jsoncpp_lib instead")
-  target_link_libraries(extism-cpp-static PUBLIC jsoncpp_lib)
+  target_link_libraries(extism-cpp-static PRIVATE jsoncpp_lib)
 endif()
 configure_file(extism-cpp-static.pc.in extism-cpp-static.pc @ONLY)
 list(APPEND CMAKE_TARGETS extism-cpp-static)

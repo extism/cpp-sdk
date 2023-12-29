@@ -1,5 +1,6 @@
 
 #include "extism.hpp"
+#include <cstring>
 
 namespace extism {
 
@@ -33,12 +34,6 @@ void CurrentPlugin::output(const uint8_t *bytes, size_t len,
     memcpy(this->memory() + offs, bytes, len);
     this->outputs[index].v.i64 = offs;
   }
-}
-
-void CurrentPlugin::output(const Json::Value &&v, size_t index) const {
-  Json::FastWriter writer;
-  const std::string s = writer.write(v);
-  this->output(s, index);
 }
 
 uint8_t *CurrentPlugin::inputBytes(size_t *length, size_t index) const {
