@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   Plugin plugin(wasm, true, functions);
 
   const char *input = argc > 1 ? argv[1] : "this is a test";
-  ExtismSize length = strlen(input);
+  size_t length = strlen(input);
 
   extism::Buffer output = plugin.call("count_vowels", (uint8_t *)input, length);
   std::cout << (char *)output.data << std::endl;
