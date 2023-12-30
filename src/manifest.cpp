@@ -125,45 +125,16 @@ std::string Manifest::json() const {
   return writer.write(doc);
 }
 
-/*
-Json::Value Wasm::json() const {
-
-  Json::Value doc;
-
-  if (this->source == WasmSourcePath) {
-    doc["path"] = this->ref;
-  } else if (this->source == WasmSourceURL) {
-    doc["url"] = this->ref;
-    doc["method"] = this->httpMethod;
-    if (!this->httpHeaders.empty()) {
-      Json::Value h;
-      for (auto k : this->httpHeaders) {
-        h[k.first] = k.second;
-      }
-      doc["headers"] = h;
-    }
-  } else if (this->source == WasmSourceBytes) {
-    doc["data"] = this->ref;
-  }
-
-  if (!this->_hash.empty()) {
-    doc["hash"] = this->_hash;
-  }
-
-  return doc;
-}
-*/
-
 Manifest Manifest::wasmPath(std::string s, std::string hash) {
   Manifest m;
-  m.addWasmPath(s, hash);
+  m.addWasmPath(std::move(s), std::move(hash));
   return m;
 }
 
 // Create manifest with a single Wasm from a URL
 Manifest Manifest::wasmURL(std::string s, std::string hash) {
   Manifest m;
-  m.addWasmURL(s, hash);
+  m.addWasmURL(std::move(s), std::move(hash));
   return m;
 }
 
@@ -171,45 +142,45 @@ Manifest Manifest::wasmURL(std::string s, std::string hash) {
 Manifest Manifest::wasmBytes(const uint8_t *data, const size_t len,
                              std::string hash) {
   Manifest m;
-  m.addWasmBytes(data, len, hash);
+  m.addWasmBytes(data, len, std::move(hash));
   return m;
 }
 
 Manifest Manifest::wasmBytes(const std::vector<uint8_t> &data,
                              std::string hash) {
   Manifest m;
-  m.addWasmBytes(data, hash);
+  m.addWasmBytes(data, std::move(hash));
   return m;
 }
 
 // Add Wasm from path
 void Manifest::addWasmPath(std::string s, std::string hash) {
-  Wasm w = Wasm::path(s, hash);
-  this->wasm.push_back(w);
+  Wasm w = Wasm::path(std::move(s), std::move(hash));
+  this->wasm.push_back(std::move(w));
 }
 
 // Add Wasm from URL
 void Manifest::addWasmURL(std::string u, std::string hash) {
-  Wasm w = Wasm::url(u, hash);
-  this->wasm.push_back(w);
+  Wasm w = Wasm::url(std::move(u), std::move(hash));
+  this->wasm.push_back(std::move(w));
 }
 
 // add Wasm from bytes
 void Manifest::addWasmBytes(const uint8_t *data, const size_t len,
                             std::string hash) {
-  Wasm w = Wasm::bytes(data, len, hash);
-  this->wasm.push_back(w);
+  Wasm w = Wasm::bytes(data, len, std::move(hash));
+  this->wasm.push_back(std::move(w));
 }
 
 void Manifest::addWasmBytes(const std::vector<uint8_t> &data,
                             std::string hash) {
-  Wasm w = Wasm::bytes(data, hash);
-  this->wasm.push_back(w);
+  Wasm w = Wasm::bytes(data, std::move(hash));
+  this->wasm.push_back(std::move(w));
 }
 
 // Add host to allowed hosts
 void Manifest::allowHost(std::string host) {
-  this->allowedHosts.push_back(host);
+  this->allowedHosts.push_back(std::move(host));
 }
 
 // Add path to allowed paths
@@ -217,13 +188,15 @@ void Manifest::allowPath(std::string src, std::string dest) {
   if (dest.empty()) {
     dest = src;
   }
-  this->allowedPaths[src] = dest;
+  this->allowedPaths[std::move(src)] = std::move(dest);
 }
 
 // Set timeout in milliseconds
 void Manifest::setTimeout(uint64_t ms) { this->timeout = ms; }
 
 // Set config key/value
-void Manifest::setConfig(std::string k, std::string v) { this->config[k] = v; }
+void Manifest::setConfig(std::string k, std::string v) {
+  this->config[std::move(k)] = std::move(v);
+}
 
 }; // namespace extism

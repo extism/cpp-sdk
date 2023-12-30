@@ -25,9 +25,9 @@ Plugin::Plugin(const uint8_t *wasm, size_t length, bool withWasi,
   }
 }
 
-Plugin::Plugin(const std::string &str, bool withWasi,
+Plugin::Plugin(std::string_view str, bool withWasi,
                std::vector<Function> functions)
-    : Plugin(reinterpret_cast<const uint8_t *>(str.c_str()), str.size(),
+    : Plugin(reinterpret_cast<const uint8_t *>(str.data()), str.size(),
              withWasi, std::move(functions)) {}
 
 Plugin::Plugin(const std::vector<uint8_t> &data, bool withWasi,
@@ -41,7 +41,7 @@ Plugin::CancelHandle Plugin::cancelHandle() {
 // Create a new plugin from Manifest
 Plugin::Plugin(const Manifest &manifest, bool withWasi,
                std::vector<Function> functions)
-    : Plugin(manifest.json().c_str(), withWasi, std::move(functions)) {}
+    : Plugin(manifest.json(), withWasi, std::move(functions)) {}
 
 bool Plugin::CancelHandle::cancel() {
   return extism_plugin_cancel(this->handle);
@@ -68,8 +68,8 @@ void Plugin::config(const char *json, size_t length) {
   }
 }
 
-void Plugin::config(const std::string &json) {
-  this->config(json.c_str(), json.size());
+void Plugin::config(std::string_view json) {
+  this->config(json.data(), json.size());
 }
 
 // Call a plugin
@@ -96,8 +96,8 @@ Buffer Plugin::call(const char *func, const std::vector<uint8_t> &input) const {
 }
 
 // Call a plugin function with string input
-Buffer Plugin::call(const char *func, const std::string &input) const {
-  return this->call(func, reinterpret_cast<const uint8_t *>(input.c_str()),
+Buffer Plugin::call(const char *func, std::string_view input) const {
+  return this->call(func, reinterpret_cast<const uint8_t *>(input.data()),
                     input.size());
 }
 
@@ -114,7 +114,7 @@ Buffer Plugin::call(const std::string &func,
 }
 
 // Call a plugin function with string input
-Buffer Plugin::call(const std::string &func, const std::string &input) const {
+Buffer Plugin::call(const std::string &func, std::string_view input) const {
   return this->call(func.c_str(), input);
 }
 

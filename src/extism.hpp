@@ -8,6 +8,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace extism {
@@ -107,14 +108,16 @@ public:
   const uint8_t *const data;
   const size_t length;
 
-  std::string string() const { return static_cast<std::string>(*this); }
+  std::string_view string() const {
+    return static_cast<std::string_view>(*this);
+  }
 
   std::vector<uint8_t> vector() const {
     return static_cast<std::vector<uint8_t>>(*this);
   }
 
-  operator std::string() const {
-    return std::string(reinterpret_cast<const char *>(data), length);
+  operator std::string_view() const {
+    return std::string_view(reinterpret_cast<const char *>(data), length);
   }
   operator std::vector<uint8_t>() const {
     return std::vector<uint8_t>(data, data + length);
@@ -144,11 +147,11 @@ public:
   ExtismSize memoryLength(MemoryHandle offs) const;
   MemoryHandle memoryAlloc(ExtismSize size) const;
   void memoryFree(MemoryHandle handle) const;
-  void output(const std::string &s, size_t index = 0) const;
-  void output(const uint8_t *bytes, size_t len, size_t index = 0) const;
+  bool output(std::string_view s, size_t index = 0) const;
+  bool output(const uint8_t *bytes, size_t len, size_t index = 0) const;
   uint8_t *inputBytes(size_t *length = nullptr, size_t index = 0) const;
   Buffer inputBuffer(size_t index = 0) const;
-  std::string inputString(size_t index = 0) const;
+  std::string_view inputStringView(size_t index = 0) const;
   const Val &inputVal(size_t index) const;
   Val &outputVal(size_t index) const;
 };
@@ -173,11 +176,12 @@ public:
            const std::vector<ValType> &outputs, FunctionType f,
            void *userData = NULL, std::function<void(void *)> free = nullptr);
 
-  Function(std::string ns, std::string name, const std::vector<ValType> &inputs,
+  Function(const std::string &ns, std::string name,
+           const std::vector<ValType> &inputs,
            const std::vector<ValType> &outputs, FunctionType f,
            void *userData = NULL, std::function<void(void *)> free = nullptr);
 
-  void setNamespace(std::string s) const;
+  void setNamespace(const std::string &s) const;
 
   Function(const Function &f);
 
@@ -206,7 +210,7 @@ public:
   Plugin(const uint8_t *wasm, size_t length, bool withWasi = false,
          std::vector<Function> functions = std::vector<Function>());
 
-  Plugin(const std::string &str, bool withWasi = false,
+  Plugin(std::string_view str, bool withWasi = false,
          std::vector<Function> functions = {});
 
   Plugin(const std::vector<uint8_t> &data, bool withWasi = false,
@@ -222,7 +226,7 @@ public:
 
   void config(const char *json, size_t length);
 
-  void config(const std::string &json);
+  void config(std::string_view json);
 
   // Call a plugin
   Buffer call(const char *func, const uint8_t *input, size_t inputLength) const;
@@ -231,7 +235,7 @@ public:
   Buffer call(const char *func, const std::vector<uint8_t> &input) const;
 
   // Call a plugin function with string input
-  Buffer call(const char *func, const std::string &input = std::string()) const;
+  Buffer call(const char *func, std::string_view input = "") const;
 
   // Call a plugin
   Buffer call(const std::string &func, const uint8_t *input,
@@ -241,8 +245,7 @@ public:
   Buffer call(const std::string &func, const std::vector<uint8_t> &input) const;
 
   // Call a plugin function with string input
-  Buffer call(const std::string &func,
-              const std::string &input = std::string()) const;
+  Buffer call(const std::string &func, std::string_view input = "") const;
 
   // Returns true if the specified function exists
   bool functionExists(const char *func) const;
@@ -262,5 +265,5 @@ public:
 inline bool setLogFile(const char *filename, const char *level);
 
 // Get libextism version
-inline std::string version();
+inline std::string_view version();
 } // namespace extism

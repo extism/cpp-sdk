@@ -30,15 +30,15 @@ Function::Function(std::string name, const std::vector<ValType> &inputs,
   this->func = std::shared_ptr<ExtismFunction>(ptr, extism_function_free);
 }
 
-Function::Function(std::string ns, std::string name,
+Function::Function(const std::string &ns, std::string name,
                    const std::vector<ValType> &inputs,
                    const std::vector<ValType> &outputs, FunctionType f,
                    void *userData, std::function<void(void *)> free)
-    : Function(name, inputs, outputs, f, userData, free) {
-  this->setNamespace(std::move(ns));
+    : Function(std::move(name), inputs, outputs, f, userData, free) {
+  this->setNamespace(ns);
 }
 
-void Function::setNamespace(std::string s) const {
+void Function::setNamespace(const std::string &s) const {
   extism_function_set_namespace(this->func.get(), s.c_str());
 }
 

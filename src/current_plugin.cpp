@@ -1,6 +1,7 @@
 
 #include "extism.hpp"
 #include <cstring>
+#include <string_view>
 
 namespace extism {
 
@@ -23,17 +24,20 @@ void CurrentPlugin::memoryFree(MemoryHandle handle) const {
   extism_current_plugin_memory_free(this->pointer, handle);
 }
 
-void CurrentPlugin::output(const std::string &s, size_t index) const {
-  this->output((const uint8_t *)s.c_str(), s.size(), index);
+bool CurrentPlugin::output(std::string_view s, size_t index) const {
+  return this->output(reinterpret_cast<const uint8_t *>(s.data()), s.size(),
+                      index);
 }
 
-void CurrentPlugin::output(const uint8_t *bytes, size_t len,
+bool CurrentPlugin::output(const uint8_t *bytes, size_t len,
                            size_t index) const {
   if (index < this->nOutputs) {
     auto offs = this->memoryAlloc(len);
     memcpy(this->memory() + offs, bytes, len);
     this->outputs[index].v.i64 = offs;
+    return true;
   }
+  return false;
 }
 
 uint8_t *CurrentPlugin::inputBytes(size_t *length, size_t index) const {
@@ -56,10 +60,10 @@ Buffer CurrentPlugin::inputBuffer(size_t index) const {
   return Buffer(ptr, length);
 }
 
-std::string CurrentPlugin::inputString(size_t index) const {
+std::string_view CurrentPlugin::inputStringView(size_t index) const {
   size_t length = 0;
-  char *buf = (char *)this->inputBytes(&length, index);
-  return std::string(buf, length);
+  auto buf = reinterpret_cast<char *>(this->inputBytes(&length, index));
+  return std::string_view(buf, length);
 }
 
 const Val &CurrentPlugin::inputVal(size_t index) const {

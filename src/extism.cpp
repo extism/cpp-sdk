@@ -8,5 +8,5 @@ inline bool setLogFile(const char *filename, const char *level) {
 }
 
 // Get libextism version
-inline std::string version() { return std::string(extism_version()); }
+inline std::string_view version() { return extism_version(); }
 }; // namespace extism
