@@ -77,7 +77,7 @@ public:
       } else {
         Json::Value data;
         data["ptr"] = reinterpret_cast<uint64_t>(src);
-        data["len"] = reinterpret_cast<uint64_t>(srcSize);
+        data["len"] = srcSize;
         doc["data"] = data;
       }
     }
