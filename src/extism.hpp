@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <extism.h>
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <memory>
@@ -9,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace extism {
@@ -21,20 +23,73 @@ public:
 
 typedef std::map<std::string, std::string> Config;
 
+class WasmBytes {
+  using DataSource =
+      std::variant<std::vector<uint8_t>, std::shared_ptr<const uint8_t[]>>;
+  DataSource src;
+  size_t srcSize;
+
+public:
+  WasmBytes(std::shared_ptr<const uint8_t[]> src, const size_t srcSize)
+      : src(std::move(src)), srcSize(srcSize) {}
+  WasmBytes(std::vector<uint8_t> data)
+      : src(std::move(data)),
+        srcSize(std::get<std::vector<uint8_t>>(this->src).size()) {}
+  WasmBytes(const uint8_t *src, const size_t srcSize)
+      : WasmBytes(std::vector<uint8_t>(src, src + srcSize)) {}
+  // DANGEROUS, src must remain valid
+  static WasmBytes CreateWithoutOwnership(const uint8_t *src,
+                                          const size_t srcSize) {
+    return WasmBytes(std::shared_ptr<const uint8_t[]>(
+                         std::shared_ptr<const uint8_t[]>{}, src),
+                     srcSize);
+  }
+  const uint8_t *get() const {
+    if (std::holds_alternative<std::vector<uint8_t>>(src)) {
+      return std::get<std::vector<uint8_t>>(this->src).data();
+    }
+    return std::get<std::shared_ptr<const uint8_t[]>>(src).get();
+  }
+
+  size_t getSize() const { return srcSize; }
+};
+
+class WasmURL {
+public:
+  std::string url;
+  std::string httpMethod;
+  std::map<std::string, std::string> httpHeaders;
+  WasmURL(std::string url, std::string httpMethod = "GET",
+          std::map<std::string, std::string> httpHeaders = {})
+      : url(std::move(url)), httpMethod(std::move(httpMethod)),
+        httpHeaders(std::move(httpHeaders)) {}
+};
+
 enum WasmSource { WasmSourcePath, WasmSourceURL, WasmSourceBytes };
 
 class Wasm {
-  WasmSource source;
-  std::string ref;
-  std::string httpMethod;
-  std::map<std::string, std::string> httpHeaders;
+  using WasmSourceType =
+      std::variant<std::filesystem::path, WasmURL, WasmBytes>;
 
-  // TODO: add base64 encoded raw data
+  WasmSourceType src;
   std::string _hash;
 
 public:
+  __attribute__((deprecated))
   Wasm(WasmSource source, std::string ref, std::string hash = std::string())
-      : source(source), ref(std::move(ref)), _hash(std::move(hash)) {}
+      : _hash(std::move(hash)) {
+    if (source == WasmSourceBytes) {
+      throw std::runtime_error(
+          "WasmSourceBytes not supported from this constructor");
+    } else if (source == WasmSourcePath) {
+      src = std::filesystem::path(ref);
+    } else if (source == WasmSourceURL) {
+      src = WasmURL(ref);
+    }
+  }
+
+  Wasm(WasmSourceType wasmSrc, std::string hash = std::string())
+      : src(std::move(wasmSrc)), _hash(std::move(hash)) {}
 
   // Create Wasm pointing to a path
   static Wasm path(std::string s, std::string hash = std::string());
@@ -63,7 +118,7 @@ public:
   std::map<std::string, std::string> allowedPaths;
   std::optional<uint64_t> timeout;
 
-  Manifest() {}
+  Manifest(std::vector<Wasm> wasm = {}) : wasm(std::move(wasm)) {}
 
   // Create manifest with a single Wasm from a path
   static Manifest wasmPath(std::string s, std::string hash = std::string());
@@ -76,7 +131,10 @@ public:
                             std::string hash = std::string());
   static Manifest wasmBytes(const std::vector<uint8_t> &data, std::string hash);
 
-  std::string json() const;
+  std::string json(const bool selfContained = true) const;
+
+  // Add Wasm
+  void addWasm(Wasm wasm);
 
   // Add Wasm from path
   void addWasmPath(std::string s, std::string hash = std::string());

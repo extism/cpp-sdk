@@ -41,7 +41,7 @@ Plugin::CancelHandle Plugin::cancelHandle() {
 // Create a new plugin from Manifest
 Plugin::Plugin(const Manifest &manifest, bool withWasi,
                std::vector<Function> functions)
-    : Plugin(manifest.json(), withWasi, std::move(functions)) {}
+    : Plugin(manifest.json(false), withWasi, std::move(functions)) {}
 
 bool Plugin::CancelHandle::cancel() {
   return extism_plugin_cancel(this->handle);

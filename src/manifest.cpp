@@ -31,47 +31,55 @@ static std::string base64_encode(const uint8_t *data, size_t len) {
 
 // Create Wasm pointing to a path
 Wasm Wasm::path(std::string s, std::string hash) {
-  return Wasm(WasmSourcePath, std::move(s), std::move(hash));
+  return Wasm(std::filesystem::path(std::move(s)), std::move(hash));
 }
 
 // Create Wasm pointing to a URL
 Wasm Wasm::url(std::string s, std::string hash, std::string method,
                std::map<std::string, std::string> headers) {
-  auto wasm = Wasm(WasmSourceURL, std::move(s), std::move(hash));
-  wasm.httpMethod = std::move(method);
-  wasm.httpHeaders = std::move(headers);
-  return wasm;
+  return Wasm(WasmURL(std::move(s), std::move(method), std::move(headers)),
+              std::move(hash));
 }
 
 // Create Wasm from bytes of a module
 Wasm Wasm::bytes(const uint8_t *data, const size_t len, std::string hash) {
-  std::string s = base64_encode(data, len);
-  return Wasm(WasmSourceBytes, std::move(s), std::move(hash));
+  return Wasm(WasmBytes(data, len), std::move(hash));
 }
 
 Wasm Wasm::bytes(const std::vector<uint8_t> &data, std::string hash) {
-  return Wasm::bytes(data.data(), data.size(), hash);
+  return Wasm::bytes(data.data(), data.size(), std::move(hash));
 }
 
 class Serializer {
 public:
-  static Json::Value json(const Wasm &wasm) {
+  static Json::Value json(const Wasm &wasm, const bool selfContained = true) {
     Json::Value doc;
 
-    if (wasm.source == WasmSourcePath) {
-      doc["path"] = wasm.ref;
-    } else if (wasm.source == WasmSourceURL) {
-      doc["url"] = wasm.ref;
-      doc["method"] = wasm.httpMethod;
-      if (!wasm.httpHeaders.empty()) {
+    if (std::holds_alternative<std::filesystem::path>(wasm.src)) {
+      doc["path"] = std::string(std::get<std::filesystem::path>(wasm.src));
+    } else if (std::holds_alternative<WasmURL>(wasm.src)) {
+      const auto &wasmURL = std::get<WasmURL>(wasm.src);
+      doc["url"] = wasmURL.url;
+      doc["method"] = wasmURL.httpMethod;
+      if (!wasmURL.httpHeaders.empty()) {
         Json::Value h;
-        for (auto k : wasm.httpHeaders) {
+        for (auto k : wasmURL.httpHeaders) {
           h[k.first] = k.second;
         }
         doc["headers"] = h;
       }
-    } else if (wasm.source == WasmSourceBytes) {
-      doc["data"] = wasm.ref;
+    } else if (std::holds_alternative<WasmBytes>(wasm.src)) {
+      const auto &wasmBytes = std::get<WasmBytes>(wasm.src);
+      auto src = wasmBytes.get();
+      auto srcSize = wasmBytes.getSize();
+      if (selfContained) {
+        doc["data"] = base64_encode(src, srcSize);
+      } else {
+        Json::Value data;
+        data["ptr"] = reinterpret_cast<uint64_t>(src);
+        data["len"] = reinterpret_cast<uint64_t>(srcSize);
+        doc["data"] = data;
+      }
     }
 
     if (!wasm._hash.empty()) {
@@ -82,11 +90,11 @@ public:
   }
 };
 
-std::string Manifest::json() const {
+std::string Manifest::json(const bool selfContained) const {
   Json::Value doc;
   Json::Value wasm;
-  for (auto w : this->wasm) {
-    wasm.append(Serializer::json(w));
+  for (const auto &w : this->wasm) {
+    wasm.append(Serializer::json(w, selfContained));
   }
 
   doc["wasm"] = wasm;
@@ -126,32 +134,27 @@ std::string Manifest::json() const {
 }
 
 Manifest Manifest::wasmPath(std::string s, std::string hash) {
-  Manifest m;
-  m.addWasmPath(std::move(s), std::move(hash));
-  return m;
+  return Manifest({Wasm(std::filesystem::path(std::move(s)), std::move(hash))});
 }
 
 // Create manifest with a single Wasm from a URL
 Manifest Manifest::wasmURL(std::string s, std::string hash) {
-  Manifest m;
-  m.addWasmURL(std::move(s), std::move(hash));
-  return m;
+  return Manifest({Wasm(WasmURL(std::move(s)), std::move(hash))});
 }
 
 // Create manifest from Wasm data
 Manifest Manifest::wasmBytes(const uint8_t *data, const size_t len,
                              std::string hash) {
-  Manifest m;
-  m.addWasmBytes(data, len, std::move(hash));
-  return m;
+  return Manifest({Wasm(WasmBytes(data, len), std::move(hash))});
 }
 
 Manifest Manifest::wasmBytes(const std::vector<uint8_t> &data,
                              std::string hash) {
-  Manifest m;
-  m.addWasmBytes(data, std::move(hash));
-  return m;
+  return Manifest::wasmBytes(data.data(), data.size(), std::move(hash));
 }
+
+// Add Wasm
+void Manifest::addWasm(Wasm wasm) { this->wasm.push_back(std::move(wasm)); }
 
 // Add Wasm from path
 void Manifest::addWasmPath(std::string s, std::string hash) {
