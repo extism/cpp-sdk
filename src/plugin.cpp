@@ -1,4 +1,5 @@
 #include "extism.hpp"
+#include <extism.h>
 #include <json/json.h>
 
 namespace extism {
@@ -73,9 +74,15 @@ void Plugin::config(std::string_view json) {
 }
 
 // Call a plugin
-Buffer Plugin::call(const char *func, const uint8_t *input,
-                    size_t inputLength) const {
-  int32_t rc = extism_plugin_call(this->plugin.get(), func, input, inputLength);
+Buffer Plugin::call(const char *func, const uint8_t *input, size_t inputLength,
+                    void *hostContext) const {
+  int32_t rc = -1;
+  if (hostContext != nullptr) {
+    rc = extism_plugin_call_with_host_context(this->plugin.get(), func, input,
+                                              inputLength, hostContext);
+  } else {
+    rc = extism_plugin_call(this->plugin.get(), func, input, inputLength);
+  }
   if (rc != 0) {
     const char *error = extism_plugin_error(this->plugin.get());
     if (error == nullptr) {
@@ -91,31 +98,34 @@ Buffer Plugin::call(const char *func, const uint8_t *input,
 }
 
 // Call a plugin function with std::vector<uint8_t> input
-Buffer Plugin::call(const char *func, const std::vector<uint8_t> &input) const {
-  return this->call(func, input.data(), input.size());
+Buffer Plugin::call(const char *func, const std::vector<uint8_t> &input,
+                    void *hostContext) const {
+  return this->call(func, input.data(), input.size(), hostContext);
 }
 
 // Call a plugin function with string input
-Buffer Plugin::call(const char *func, std::string_view input) const {
+Buffer Plugin::call(const char *func, std::string_view input,
+                    void *hostContext) const {
   return this->call(func, reinterpret_cast<const uint8_t *>(input.data()),
-                    input.size());
+                    input.size(), hostContext);
 }
 
 // Call a plugin
 Buffer Plugin::call(const std::string &func, const uint8_t *input,
-                    size_t inputLength) const {
-  return this->call(func.c_str(), input, inputLength);
+                    size_t inputLength, void *hostContext) const {
+  return this->call(func.c_str(), input, inputLength, hostContext);
 }
 
 // Call a plugin function with std::vector<uint8_t> input
-Buffer Plugin::call(const std::string &func,
-                    const std::vector<uint8_t> &input) const {
-  return this->call(func.c_str(), input);
+Buffer Plugin::call(const std::string &func, const std::vector<uint8_t> &input,
+                    void *hostContext) const {
+  return this->call(func.c_str(), input, hostContext);
 }
 
 // Call a plugin function with string input
-Buffer Plugin::call(const std::string &func, std::string_view input) const {
-  return this->call(func.c_str(), input);
+Buffer Plugin::call(const std::string &func, std::string_view input,
+                    void *hostContext) const {
+  return this->call(func.c_str(), input, hostContext);
 }
 
 // Returns true if the specified function exists

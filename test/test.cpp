@@ -69,6 +69,10 @@ TEST(Plugin, HostFunction) {
   auto t = std::vector<ValType>{ValType::ExtismValType_I64};
   Function hello_world =
       Function("hello_world", t, t, [](CurrentPlugin plugin, void *user_data) {
+        uint64_t *ctx = (uint64_t *)plugin.hostContext();
+        if (ctx != nullptr) {
+          ASSERT_EQ(*ctx, 12345);
+        }
         plugin.output(std::string("test"));
       });
   auto functions = std::vector<Function>{
@@ -77,6 +81,10 @@ TEST(Plugin, HostFunction) {
   Plugin plugin(wasm, true, functions);
   auto buf = plugin.call("count_vowels", "aaa");
   ASSERT_EQ(buf.length, 4);
+  ASSERT_EQ((std::string)buf, "test");
+  uint64_t ctx = 12345;
+  auto buf1 = plugin.call("count_vowels", "aaa", (void *)&ctx);
+  ASSERT_EQ(buf1.length, buf.length);
   ASSERT_EQ((std::string)buf, "test");
 }
 
