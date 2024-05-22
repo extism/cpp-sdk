@@ -212,6 +212,7 @@ public:
   std::string_view inputStringView(size_t index = 0) const;
   const Val &inputVal(size_t index) const;
   Val &outputVal(size_t index) const;
+  void *hostContext() const;
 };
 
 typedef std::function<void(CurrentPlugin, void *user_data)> FunctionType;
@@ -287,23 +288,28 @@ public:
   void config(std::string_view json);
 
   // Call a plugin
-  Buffer call(const char *func, const uint8_t *input, size_t inputLength) const;
+  Buffer call(const char *func, const uint8_t *input, size_t inputLength,
+              void *hostContext = nullptr) const;
 
   // Call a plugin function with std::vector<uint8_t> input
-  Buffer call(const char *func, const std::vector<uint8_t> &input) const;
+  Buffer call(const char *func, const std::vector<uint8_t> &input,
+              void *hostContext = nullptr) const;
 
   // Call a plugin function with string input
-  Buffer call(const char *func, std::string_view input = "") const;
+  Buffer call(const char *func, std::string_view input = "",
+              void *hostContext = nullptr) const;
 
   // Call a plugin
-  Buffer call(const std::string &func, const uint8_t *input,
-              size_t inputLength) const;
+  Buffer call(const std::string &func, const uint8_t *input, size_t inputLength,
+              void *hostContext = nullptr) const;
 
   // Call a plugin function with std::vector<uint8_t> input
-  Buffer call(const std::string &func, const std::vector<uint8_t> &input) const;
+  Buffer call(const std::string &func, const std::vector<uint8_t> &input,
+              void *hostContext = nullptr) const;
 
   // Call a plugin function with string input
-  Buffer call(const std::string &func, std::string_view input = "") const;
+  Buffer call(const std::string &func, std::string_view input = "",
+              void *hostContext = nullptr) const;
 
   // Returns true if the specified function exists
   bool functionExists(const char *func) const;

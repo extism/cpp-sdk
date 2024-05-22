@@ -1,6 +1,7 @@
 
 #include "extism.hpp"
 #include <cstring>
+#include <extism.h>
 #include <string_view>
 
 namespace extism {
@@ -80,6 +81,10 @@ Val &CurrentPlugin::outputVal(size_t index) const {
   }
 
   return this->outputs[index];
+}
+
+void *CurrentPlugin::hostContext() const {
+  return extism_current_plugin_host_context(this->pointer);
 }
 
 }; // namespace extism
