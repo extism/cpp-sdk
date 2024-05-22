@@ -66,7 +66,7 @@ TEST(Plugin, FunctionExists) {
 
 TEST(Plugin, HostFunction) {
   auto wasm = read("../wasm/code-functions.wasm");
-  auto t = std::vector<ValType>{ValType::I64};
+  auto t = std::vector<ValType>{ValType::ExtismValType_I64};
   Function hello_world =
       Function("hello_world", t, t, [](CurrentPlugin plugin, void *user_data) {
         plugin.output(std::string("test"));
@@ -88,7 +88,7 @@ void callThread(Plugin *plugin) {
 
 TEST(Plugin, MultipleThreads) {
   auto wasm = read("../wasm/code-functions.wasm");
-  auto t = std::vector<ValType>{ValType::I64};
+  auto t = std::vector<ValType>{ValType::ExtismValType_I64};
   Function hello_world =
       Function("hello_world", t, t, [](CurrentPlugin plugin, void *user_data) {
         plugin.output(std::string("testing123"));

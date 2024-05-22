@@ -45,7 +45,7 @@ uint8_t *CurrentPlugin::inputBytes(size_t *length, size_t index) const {
     return nullptr;
   }
   auto inp = this->inputs[index];
-  if (inp.t != ValType::I64) {
+  if (inp.t != ValType::ExtismValType_I64) {
     return nullptr;
   }
   if (length != nullptr) {

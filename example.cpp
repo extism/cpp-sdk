@@ -31,7 +31,8 @@ int main(int argc, char *argv[]) {
   };
 
   std::vector<Function> functions = {
-      Function("hello_world", {ValType::I64}, {ValType::I64}, hello_world,
+      Function("hello_world", {ValType::ExtismValType_I64},
+               {ValType::ExtismValType_I64}, hello_world,
                (void *)"Hello again!",
                [](void *x) { std::cout << "Free user data" << std::endl; }),
   };
