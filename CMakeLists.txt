@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.18)
 include_guard(GLOBAL)
 set (CMAKE_CXX_STANDARD 17)
+if(APPLE)
+    # cmake likes to build to the major version.
+    # rust likes to build to the minor version (to build libextism)
+    # attempt to set cmake to build to the minor version
+    execute_process(
+        COMMAND sw_vers -productVersion
+        OUTPUT_VARIABLE MACOS_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(CMAKE_OSX_DEPLOYMENT_TARGET ${MACOS_VERSION} CACHE STRING "Minimum OS X deployment version")
+endif()
 
 # extism-cpp library
 project(extism-cpp VERSION 1.0.0 DESCRIPTION "C++ bindings for libextism")
